@@ -21,6 +21,15 @@ set /p MSPath=<MsBuildBinLocation.nfo
 cd ..
 goto :wait_key
 
+:sol
+mkdir %build_folder%
+cd %build_folder%
+call "..\findBuildSoft.bat"
+set /p cmakePath=<CmakeBinLocation.nfo
+%cmakePath% ".."
+cd ..
+goto :wait_key
+
 :clean
 rmdir /q /s %build_folder%
 goto :wait_key
@@ -28,6 +37,18 @@ goto :wait_key
 :re
 rmdir /q /s %build_folder%
 goto :all
+
+:resol
+rmdir /q /s %build_folder%
+goto :sol
+
+:help
+echo Commands are:
+echo all : generates solution and build it
+echo sol : only generates solution
+echo re : rebuild entire project
+echo resol : regenerates solution
+echo help : diplay this help
 
 :wait_key
 pause

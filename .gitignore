@@ -2,3 +2,8 @@
 *log
 *toc
 *pdf
+*.vcxproj
+*.vcxproj.filters
+*.sln
+*.nfo
+build

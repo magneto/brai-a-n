@@ -22,6 +22,7 @@ set /a MSFound=0
 if exist "%MsBuildBinLoc%" (
 	echo Already setup MsBuildPath
 	set /a MSFound=1
+	goto :findCmake
 )
 
 if "%MSFound%"=="0" (
@@ -39,6 +40,7 @@ if "%MSFound%"=="0" (
 
 echo %error_not_found% "MSBuild.exe"
 goto :quitStep
+
 :findCmake
 if exist "%cmakeBinLoc%" (
 	echo Already setup cmakePath

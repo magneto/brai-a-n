@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.4)
 
 project(braian)
+##find_package(Qt5 REQUIRED)
 
 file(
 	GLOB_RECURSE
