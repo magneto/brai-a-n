@@ -17,6 +17,7 @@ call "..\findBuildSoft.bat"
 set /p cmakePath=<CmakeBinLocation.nfo
 set /p MSPath=<MsBuildBinLocation.nfo
 %cmakePath% ".."
+%cmakePath% --build . --target braian --config Debug
 %MSPath% braian.sln /m
 cd ..
 goto :wait_key
