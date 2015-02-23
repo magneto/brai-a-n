@@ -16,27 +16,29 @@ int main()
 		[MainEntry]										\
     public class Babar									\
 	{													\
-			[MainEntry]\
+			[MainEntry]									\
         public void SayHello(Dictionary<String, ANode>  childs, int v)							\
         {												\
-            System.Console.WriteLine(\"In, v\");		\
-			/*childs[\"Bar\"].Process(21);*/				\
+		System.Console.WriteLine(v);			\
+			childs[\"Bar\"].Process(21);				\
 		}												\
 		    };											\
 								}						\
-												"));/*
+												"));
 	CodeNode ^two = gcnew CodeNode(gcnew String("		\
-   	//[MainEntry]											\
+												using System; \
+												using System.Collections.Generic;\
+   	[MainEntry]											\
     public class Bar									\
 	{													\
-		//[MainEntry]										\
-	    public void SayHello(Dictionary<String ^, ANode ^> ^childs, int i)						\
+		[MainEntry]										\
+	    public void SayHello(Dictionary<String , ANode > childs, int i)						\
 	    {												\
-	        System.Console.WriteLine(\"Child, i\");		\
+		System.Console.WriteLine(i);		\
 		}												\
 	};													\
-	"));*/
-	
+	"));
+	in->AddChild("Bar", two);
 	in->Process(42);
 	}
 	catch (Exception ^e) {

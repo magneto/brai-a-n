@@ -13,7 +13,6 @@ using namespace System;
 using namespace System::IO;
 using namespace System::Runtime::Serialization::Formatters::Soap;
 
-generic<typename T>
 public ref class Serializer
 {
 private:
@@ -21,6 +20,6 @@ private:
 
 public:
 	Serializer();
-	void Serialize(String^ , ANode<T>^ );
-	ANode<T>^ Unserialize(String^ const);
+	void Serialize(String^ , ANode^ );
+	ANode^ Unserialize(String^ const);
 };
