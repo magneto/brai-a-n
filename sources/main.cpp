@@ -5,25 +5,43 @@
 
 #include "Nodes\ANode.hpp"
 #include "Nodes\CodeNode.hpp"
+
 int main()
 {
-	//CompilerConfig::Init();
-	ANode<int> ^in = gcnew CodeNode<int>(gcnew String("	\
-namespace Foo											\
-{														\
+	try {
+		CodeNode ^in = gcnew CodeNode(gcnew String("		\
+												      using System.Collections.Generic;\
+													     using System;\
+	namespace toto {									\
+		[MainEntry]										\
+    public class Babar									\
+	{													\
+			[MainEntry]\
+        public void SayHello(Dictionary<String, ANode>  childs, int v)							\
+        {												\
+            System.Console.WriteLine(\"In, v\");		\
+			/*childs[\"Bar\"].Process(21);*/				\
+		}												\
+		    };											\
+								}						\
+												"));/*
+	CodeNode ^two = gcnew CodeNode(gcnew String("		\
+   	//[MainEntry]											\
     public class Bar									\
 	{													\
-        public void SayHello()							\
-        {												\
-            System.Console.WriteLine(\"Hello World\");	\
-        }												\
-    };													\
-};														\
-	"));
-
+		//[MainEntry]										\
+	    public void SayHello(Dictionary<String ^, ANode ^> ^childs, int i)						\
+	    {												\
+	        System.Console.WriteLine(\"Child, i\");		\
+		}												\
+	};													\
+	"));*/
+	
 	in->Process(42);
-ANode<ANode<int> ^> ^a = gcnew CodeNode<ANode<int> ^>("toto");
-//a->Process(in); // specialisation (where T : class must be reference)
+	}
+	catch (Exception ^e) {
+		Console::WriteLine(e->ToString());
+	}
 	System::Console::ReadKey();
 	return 0;
 }

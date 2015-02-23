@@ -24,6 +24,10 @@ set(
 	"/clr /TP /DDEBUG"
 )
 
+include_directories(
+	".\\sources"
+)
+
 add_executable(
 	${CMAKE_PROJECT_NAME}
 	${braian_sources}
