@@ -4,10 +4,10 @@
 */
 
 #pragma once
-
+#using <System.dll>
 using namespace System;
 using namespace System::Collections::Generic;
-/*
+
 ref class Counter {
 public:
 	static int last = 0;
@@ -28,13 +28,14 @@ public:
 		Counter::avnames->Remove(n);
 	}
 };
-*/
+
 public ref class ANode abstract {
 protected:
 
 	Dictionary<String^, ANode^>	^childs_;
 public:
 	int number;
+	String ^name_;
 	ANode();
 	void AddChild(String ^name, ANode ^node);
 	generic<typename T>

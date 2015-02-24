@@ -14,6 +14,8 @@ public ref class CodeNode : public ANode {
 protected:
 	String ^code_;
 	CompilerResults ^res_;
+	Object ^instance_;
+	MethodInfo ^entryPoint_;
 	bool	rebuild_;
 public:
 	enum class LanguageSel {

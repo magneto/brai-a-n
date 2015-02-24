@@ -19,8 +19,8 @@ int main()
 			[MainEntry]									\
         public void SayHello(Dictionary<String, ANode>  childs, int v)							\
         {												\
-		System.Console.WriteLine(v);			\
-			childs[\"Bar\"].Process(21);				\
+				System.Console.WriteLine(\"aaff\"+v);			\
+			childs[\"Bar\"].Process(v);				\
 		}												\
 		    };											\
 								}						\
@@ -39,7 +39,22 @@ int main()
 	};													\
 	"));
 	in->AddChild("Bar", two);
-	in->Process(42);
+	int i = 0;
+	bool trigger = true;
+	while (1) {
+		if (trigger) {
+			i++;
+			if (i > 50)
+				trigger = false;
+		}
+		else {
+			i--;
+			if (i <= 0)
+				trigger = true;
+		}
+		in->Process(i);
+		System::Threading::Thread::Sleep(250);
+	}
 	}
 	catch (Exception ^e) {
 		Console::WriteLine(e->ToString());
