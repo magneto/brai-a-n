@@ -11,63 +11,63 @@ using namespace System;
 using namespace OnTheFly;
 
 CodeNode::CodeNode(String ^code) :
-ANode(), code_(code), res_(nullptr), rebuild_(true), language_(LanguageSel::CSHARP) {
+	ANode(), code_(code), res_(nullptr), rebuild_(true), language_(LanguageSel::CSHARP) {
 }
 
 void CodeNode::Build() {
-	CompilerResults ^last = res_;
+	TextWriter ^errorWriter = Console::Error;
+	CompilerResults ^newRes = nullptr;
 
-	res_ = CompilerAttr::provider[(int)language_]->CompileAssemblyFromSource(CompilerAttr::compilerParams, code_);
-	if (res_->Errors->Count != 0) {
-		TextWriter ^errorWriter = Console::Error;
-
-		errorWriter->WriteLine("ERROR: (0x0)=>Build failed on node \"{0}\" with following errors:", name_);
-		for each (CompilerError ^ce in res_->Errors) {
+	newRes = CompilerAttr::provider[(int)language_]->CompileAssemblyFromSource(CompilerAttr::compilerParams, code_);
+	if (newRes->Errors->Count != 0) {
+		errorWriter->WriteLine("ERROR: [0x04]: Cannot build due to source build fail on node \"{0}\".", name_);
+		for each (CompilerError ^ce in newRes->Errors) {
 			errorWriter->WriteLine(ce);
 		}
-		res_ = last;
+		return ;
 	}
-	array<Type ^>	^types = res_->CompiledAssembly->GetTypes();
-	if (types->Length <= 0) {
-		Console::WriteLine("Error [G000]a");
-	}
+	array<Type ^>	^types = newRes->CompiledAssembly->GetTypes();
 	Type ^entryClass = nullptr;
 	for each (Type ^t in types) {
 		if (entryClass && t->GetCustomAttributes(MainEntry::typeid, false)->Length > 0) {
-			Console::WriteLine("Error [G000]b");
+			errorWriter->WriteLine("ERROR: [0x02]: Cannot build because there are too many EntryClass.");
+			return ;
 		}
-		Console::WriteLine(t->Name);
 		if (t->GetCustomAttributes(MainEntry::typeid, false)->Length > 0) {
 			entryClass = t;
 		}
 	}
 	if (!entryClass) {
-		Console::WriteLine("Error [G000]c");
+		errorWriter->WriteLine("ERROR: [0x00]: Cannot build because there’s no EntryClass. (Must set [MainEntry] on a class.)");
+		return ;
 	}
-	instance_ = res_->CompiledAssembly->CreateInstance(entryClass->FullName);
+	instance_ = newRes->CompiledAssembly->CreateInstance(entryClass->FullName);
 	entryPoint_ = nullptr;
 	for each (MethodInfo ^i in entryClass->GetMethods()) {
 		if (entryPoint_ && i->GetCustomAttributes(MainEntry::typeid, false)->Length > 0) {
-			Console::WriteLine("Error [G000]d");
+			errorWriter->WriteLine("ERROR: [0x03]: Cannot build because there are too many EntryMethod in node \"{0}\".", name_);
+			return ;
 		}
 		if (i->GetCustomAttributes(MainEntry::typeid, false)->Length > 0) {
 			entryPoint_ = i;
 		}
 	}
 	if (!entryPoint_) {
-		Console::WriteLine("Error [G000]e");
+		errorWriter->WriteLine("ERROR: [0x01]: Cannot build because there’s no EntryMethod. (Must set [MainEntry] on a method of the class tagged [MainEntry]\"{0}\".)", name_);
+		return ;
 	}
+	res_ = newRes;
 }
 
 generic<typename T>
-	void CodeNode::Process(T value) {
-		if (rebuild_) {
-			this->Build();
-			rebuild_ = false;
-		}
-		if (res_) {
-			//Console::WriteLine(name_);
-
-			entryPoint_->Invoke(instance_, gcnew array < Object ^ > {childs_, value});
-		}
+void CodeNode::Process(T value) {
+	if (rebuild_) {
+		this->Build();
+		rebuild_ = false;
 	}
+	if (res_) {
+		//Console::WriteLine(name_);
+
+		entryPoint_->Invoke(instance_, gcnew array < Object ^ > {childs_, value});
+	}
+}
