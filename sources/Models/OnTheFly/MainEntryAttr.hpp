@@ -1,3 +1,8 @@
+/*
+** Author: Sebastien Maire
+** Contribs:
+*/
+
 #pragma once
 
 using namespace System;

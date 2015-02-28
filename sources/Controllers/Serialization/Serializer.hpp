@@ -4,10 +4,12 @@
 */
 
 #pragma once
+
 #using <system.dll>
 #using <system.messaging.dll>
 #using <System.Runtime.Serialization.Formatters.Soap.dll>
-#include "Nodes\ANode.hpp"
+
+#include "Models\Tree\Nodes\ANode.hpp"
 
 using namespace System;
 using namespace System::IO;

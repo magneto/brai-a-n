@@ -6,9 +6,7 @@
 #pragma once
 
 #include "ANode.hpp"
-
-#using "system.dll"
-#include "OnTheFly\CompilerAttr.hpp"
+#include "Controllers\OnTheFly\CompilerAttr.hpp"
 
 public ref class CodeNode : public ANode {
 protected:

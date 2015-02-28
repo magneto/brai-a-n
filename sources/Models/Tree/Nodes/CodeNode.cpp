@@ -4,8 +4,8 @@
 */
 
 #include "CodeNode.hpp"
-#include "OnTheFly\CompilerAttr.hpp"
-#include "OnTheFly\NodeMainAttr.hpp"
+#include "Controllers\OnTheFly\CompilerAttr.hpp"
+#include "Models\OnTheFly\MainEntryAttr.hpp"
 
 using namespace System;
 using namespace OnTheFly;

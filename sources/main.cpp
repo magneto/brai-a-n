@@ -3,8 +3,7 @@
 ** COntribs:
 */
 
-#include "Nodes\ANode.hpp"
-#include "Nodes\CodeNode.hpp"
+#include "Models\Tree\Nodes\CodeNode.hpp"
 
 int main()
 {
