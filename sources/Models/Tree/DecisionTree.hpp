@@ -10,5 +10,9 @@
 #include "Models\Tree\Nodes\ANode.hpp"
 
 public ref class DecisionTree {
-	DecisionTree(){}
+public:
+	DecisionTree();
+
+	ANode			^rootNode_;
+	List<ANode ^>	^standaloneNodes_;
 };
