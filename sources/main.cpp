@@ -1,6 +1,6 @@
 /*
 ** Author: Sebastien Maire
-** COntribs:
+** Contribs:
 */
 
 #include "Models\Tree\Nodes\CodeNode.hpp"
