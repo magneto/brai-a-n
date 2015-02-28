@@ -9,7 +9,7 @@
 #using <system.messaging.dll>
 #using <System.Runtime.Serialization.Formatters.Soap.dll>
 
-#include "Models\Tree\Nodes\ANode.hpp"
+#include "Models\Tree\DecisionTree.hpp"
 
 using namespace System;
 using namespace System::IO;
@@ -22,6 +22,6 @@ private:
 
 public:
 	Serializer();
-	void Serialize(String^ , ANode^ );
-	ANode^ Unserialize(String^ const);
+	void Serialize(String^ , DecisionTree^ );
+	DecisionTree^ Unserialize(String^ const);
 };
