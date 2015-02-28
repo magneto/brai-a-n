@@ -68,6 +68,6 @@ void CodeNode::Process(T value) {
 	if (res_) {
 		//Console::WriteLine(name_);
 
-		entryPoint_->Invoke(instance_, gcnew array < Object ^ > {childs_, value});
+		entryPoint_->Invoke(instance_, gcnew array < Object ^ > {children_, value});
 	}
 }

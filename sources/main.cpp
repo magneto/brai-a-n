@@ -15,11 +15,11 @@ int main()
 		[MainEntry]										\
     public class Babar									\
 	{													\
-			[MainEntry]									\
+		[MainEntry]									\
         public void SayHello(Dictionary<String, ANode>  childs, int v)							\
         {												\
 				System.Console.WriteLine(\"aaff\"+v);			\
-			childs[\"Bar\"].Process(v);				\
+			childs[\"Node1\"].Process(v);				\
 		}												\
 		    };											\
 								}						\
@@ -37,7 +37,7 @@ int main()
 		}												\
 	};													\
 	"));
-	in->AddChild("Bar", two);
+	in->AddChild(two);
 	int i = 0;
 	bool trigger = true;
 	while (1) {

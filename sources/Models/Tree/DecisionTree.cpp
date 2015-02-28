@@ -5,6 +5,10 @@
 
 #include "DecisionTree.hpp"
 
-DecisionTree::DecisionTree() {
+DecisionTree::DecisionTree() :
+	rootNode_(nullptr), standaloneNodes_(gcnew List<ANode ^>(42)) {
+}
 
+List<ANode ^>	^DecisionTree::getNodes() {
+	return allNodes_;
 }

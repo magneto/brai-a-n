@@ -33,13 +33,19 @@ public:
 
 public ref class ANode abstract {
 protected:
-
-	Dictionary<String^, ANode^>	^childs_;
+	Dictionary<String^, ANode^>	^children_;
+	UInt32	posX_;
+	UInt32	posY_;
 public:
 	int number;
 	String ^name_;
 	ANode();
-	void AddChild(String ^name, ANode ^node);
+// Getters, setters
+	void			setPosition(UInt32 x, UInt32 y);
+	String	^getName();
+	Dictionary<String ^, ANode ^>	^getChildren();
+
+	void AddChild(ANode ^node);
 	generic<typename T>
 	virtual void Process(T val) abstract;
 };
