@@ -1,6 +1,7 @@
 #include "NodeWidget.h"
 
 #include "BrainView.h"
+#include "Models\Tree\Nodes\CodeNode.hpp"
 
 
 BrainView::BrainView(void) :
@@ -10,9 +11,10 @@ canvas_(gcnew Canvas()) {
 	this->Height = 800;
 	this->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x20, 0x20, 0x20));
 
-	NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1");
-	NodeWidget ^b = gcnew NodeWidget(this, 210, 10, "test2");
 	this->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
+
+	NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;"));
+	/*NodeWidget ^b = gcnew NodeWidget(this, 210, 10, "test2");*/
 }
 
 Canvas ^BrainView::getCanvas() {
@@ -39,8 +41,8 @@ void BrainView::NodesCreate(System::Object ^sender, System::Windows::RoutedEvent
 {
 	MenuItem ^i = (MenuItem ^)sender;
 
-	
-	gcnew NodeWidget(this, 42, 42, "GROS ZOBE");
+	CodeNode ^n = gcnew CodeNode("int a;");
+	gcnew NodeWidget(this, 42, 42, n->getName(), n);
 	this->canvas_->Children->Remove(menu_);
 }
 
@@ -67,27 +69,3 @@ void	BrainView::UpdateLinks() {
 	// loop over the nodes
 	// redrawlines
 }
-
-
-
-
-ref class Appli : Application
-{
-public:
-	Appli(void){}
-protected:
-	virtual void OnStartup(StartupEventArgs^ e) override
-	{
-		Application::OnStartup(e);
-		BrainView^ win = gcnew BrainView();
-		win->Show();
-	}
-};
-
-[STAThread]
-
-int main(array<String^>^ args)
-{
-	return (gcnew Appli())->Run();
-}
-

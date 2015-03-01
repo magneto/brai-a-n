@@ -6,10 +6,12 @@
 #include "include.h"
 #include "BrainView.h"
 
+ref class CodeNode;
 
 ref class NodeWidget
 {
 public:
+	CodeNode	^node_;
 	UInt32		posX_;
 	UInt32		posY_;
 	BrainView^ win;
@@ -27,8 +29,9 @@ public:
 	TextBox^ tBox_;
 
 public:
-	NodeWidget(BrainView ^curWin, int posX, int posY, String ^title);
+	NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, CodeNode ^node);
 	void AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
+	void ButtonBuild(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 	void OnMouseClickButtonMove(Object^ sender, RoutedEventArgs^ e);
 	void NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e);
 };

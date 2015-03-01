@@ -1,63 +1,32 @@
 /*
 ** Author: Sebastien Maire
-** Contribs:
+** Contribs: Stephane Nguyen
 */
 
-#include "Models\Tree\Nodes\CodeNode.hpp"
+#using "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\PresentationFramework.dll"
 
-int main()
+#include "BrainView\BrainView.h"
+
+using namespace System;
+using namespace System::Windows;
+
+
+
+ref class Appli : Application
 {
-	try {
-		CodeNode ^in = gcnew CodeNode(gcnew String("		\
-												      using System.Collections.Generic;\
-													     using System;\
-	namespace toto {									\
-		[MainEntry]										\
-    public class Babar									\
-	{													\
-		[MainEntry]									\
-        public void SayHello(Dictionary<String, ANode>  childs, int v)							\
-        {												\
-				System.Console.WriteLine(\"aaff\"+v);			\
-			childs[\"Node1\"].Process(v);				\
-		}												\
-		    };											\
-								}						\
-												"));
-	CodeNode ^two = gcnew CodeNode(gcnew String("		\
-												using System; \
-												using System.Collections.Generic;\
-   	[MainEntry]											\
-    public class Bar									\
-	{													\
-		[MainEntry]										\
-	    public void SayHello(Dictionary<String , ANode > childs, int i)						\
-	    {												\
-		System.Console.WriteLine(i);		\
-		}												\
-	};													\
-	"));
-	in->AddChild(two);
-	int i = 0;
-	bool trigger = true;
-	while (1) {
-		if (trigger) {
-			i++;
-			if (i > 50)
-				trigger = false;
-		}
-		else {
-			i--;
-			if (i <= 0)
-				trigger = true;
-		}
-		in->Process(i);
-		System::Threading::Thread::Sleep(250);
+public:
+	Appli(void){}
+protected:
+	virtual void OnStartup(StartupEventArgs^ e) override
+	{
+		Application::OnStartup(e);
+		BrainView^ win = gcnew BrainView();
+		win->Show();
 	}
-	}
-	catch (Exception ^e) {
-		Console::WriteLine(e->ToString());
-	}
-	System::Console::ReadKey();
-	return 0;
+};
+
+[STAThread]
+int main(array<String^>^ args)
+{
+	return (gcnew Appli())->Run();
 }

@@ -1,24 +1,26 @@
 #include "NodeWidget.h"
+#include "Models\Tree\Nodes\CodeNode.hpp"
 
 using namespace System::Windows::Media::Imaging;
 
-NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title) :
-	win(curWin),
-	rootWidget_(gcnew Grid()),
-	spRoot_(gcnew StackPanel()),
-	spButton_(gcnew StackPanel()),
-	gTitle_(gcnew Grid()),
-	gButton_(gcnew Grid()),
-	tBoxTitle_(gcnew TextBox()),
-	recNode_(gcnew Rectangle()),
-	bRemove_(gcnew Button()),
-	bAdd_(gcnew Button()),
-	bBuild_(gcnew Button()),
-	bMove_(gcnew Button()),
-	tBox_(gcnew TextBox()),
-	posX_(posX),
-	posY_(posY)
-	{
+NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, CodeNode ^node) :
+node_(node),
+win(curWin),
+rootWidget_(gcnew Grid()),
+spRoot_(gcnew StackPanel()),
+spButton_(gcnew StackPanel()),
+gTitle_(gcnew Grid()),
+gButton_(gcnew Grid()),
+tBoxTitle_(gcnew TextBox()),
+recNode_(gcnew Rectangle()),
+bRemove_(gcnew Button()),
+bAdd_(gcnew Button()),
+bBuild_(gcnew Button()),
+bMove_(gcnew Button()),
+tBox_(gcnew TextBox()),
+posX_(posX),
+posY_(posY)
+{
 	rootWidget_->Width = 355;
 	rootWidget_->Height = 305;
 
@@ -58,7 +60,9 @@ NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title) :
 	bBuild_->Margin = System::Windows::Thickness(29, 10, 0, 10);
 	bMove_->Margin = System::Windows::Thickness(29, 10, 0, 10);
 
-	bAdd_->Click +=gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::AddLink);
+	bBuild_->Tag = this;
+	bBuild_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::ButtonBuild);
+	bAdd_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::AddLink);
 	bMove_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::OnMouseClickButtonMove);
 
 
@@ -78,7 +82,7 @@ NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title) :
 	img3->Source = btm3;
 	img3->Stretch = Stretch::Fill;
 	bMove_->Content = img3;
-	
+
 	spButton_->Children->Add(bRemove_);
 	spButton_->Children->Add(bAdd_);
 	spButton_->Children->Add(bBuild_);
@@ -93,7 +97,7 @@ NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title) :
 	tBox_->Foreground = gcnew SolidColorBrush(Colors::White);
 	tBox_->VerticalScrollBarVisibility = ScrollBarVisibility::Auto;
 	tBox_->HorizontalScrollBarVisibility = ScrollBarVisibility::Auto;
-	
+
 
 	rootWidget_->Children->Add(spRoot_);
 	rootWidget_->Children->Add(recNode_);
@@ -108,50 +112,55 @@ NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title) :
 	win->getCanvas()->Children->Add(rootWidget_);
 	win->Content = win->getCanvas();
 
-	
+
 
 	win->MouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(win, &BrainView::OnMouseClickWin);
-	rootWidget_->MouseLeftButtonUp +=gcnew System::Windows::Input::MouseButtonEventHandler(this, &NodeWidget::NodeClic);
+	rootWidget_->MouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &NodeWidget::NodeClic);
+}
+
+void NodeWidget::ButtonBuild(System::Object ^sender, System::Windows::RoutedEventArgs ^e) {
+	if (this->node_) {
+		this->node_->Build();
+	}
+}
+
+void NodeWidget::OnMouseClickButtonMove(Object^ sender, RoutedEventArgs^ e)
+{
+	if (win->selected_) {
+		win->selected_->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
+		win->selected_ = nullptr;
+	}
+	Button ^b = (Button ^)sender;
+
+	NodeWidget ^n = (NodeWidget ^)b->Tag;
+	n->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0xEF, 0x57, 0x26));
+	win->selected_ = n;
+	win->mode_ = BrainView::Mode::MOVE;
 }
 
 
-	void NodeWidget::OnMouseClickButtonMove(Object^ sender, RoutedEventArgs^ e)
-	{
-		if (win->selected_) {
-			win->selected_->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
-			win->selected_ = nullptr;
-		}
-		Button ^b = (Button ^)sender;
-
-		NodeWidget ^n = (NodeWidget ^)b->Tag;
-		n->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0xEF, 0x57, 0x26));
-		win->selected_ = n;
-		win->mode_ = BrainView::Mode::MOVE;
-	}
+void NodeWidget::AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
+{
+	win->selected_ = this;
+	win->mode_ = BrainView::Mode::LINK_NODE;
+}
 
 
-	void NodeWidget::AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
-	{
-		win->selected_ = this;
-		win->mode_ = BrainView::Mode::LINK_NODE;
-	}
+void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e)
+{
+	if (win->selected_) {
+		if (win->mode_ == BrainView::Mode::LINK_NODE) {
+			Line ^l = gcnew Line();
 
+			l->Visibility = System::Windows::Visibility::Visible;
+			l->StrokeThickness = 4;
+			l->Stroke = System::Windows::Media::Brushes::Black;
+			l->X1 = win->selected_->posX_;
+			l->Y1 = win->selected_->posY_;
+			l->X2 = e->GetPosition(win).X;
+			l->Y2 = e->GetPosition(win).Y;
 
-	void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e)
-	{
-		if (win->selected_) {
-			if (win->mode_ == BrainView::Mode::LINK_NODE) {
-				Line ^l = gcnew Line();
-
-				l->Visibility = System::Windows::Visibility::Visible;
-				l->StrokeThickness = 4;
-				l->Stroke = System::Windows::Media::Brushes::Black;
-				l->X1 = win->selected_->posX_;
-				l->Y1 = win->selected_->posY_;
-				l->X2 = e->GetPosition(win).X;
-				l->Y2 = e->GetPosition(win).Y;
-
-				win->canvas_->Children->Add(l);
-			}
+			win->canvas_->Children->Add(l);
 		}
 	}
+}
