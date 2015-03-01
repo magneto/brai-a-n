@@ -13,7 +13,8 @@ canvas_(gcnew Canvas()) {
 
 	this->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
 
-	NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;"));
+	this->Content = canvas_;
+	//NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;"));
 	/*NodeWidget ^b = gcnew NodeWidget(this, 210, 10, "test2");*/
 }
 

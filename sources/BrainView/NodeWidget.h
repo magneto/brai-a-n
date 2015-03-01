@@ -34,6 +34,8 @@ public:
 	void ButtonBuild(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 	void OnMouseClickButtonMove(Object^ sender, RoutedEventArgs^ e);
 	void NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e);
+	void	OnMouseMove(Object ^sender, MouseEventArgs ^e);
+
 };
 
 #endif NODE_H_ // NODE_H_

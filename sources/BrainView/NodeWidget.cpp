@@ -110,10 +110,8 @@ posY_(posY)
 	Canvas::SetTop(rootWidget_, posY);
 	Canvas::SetLeft(rootWidget_, posX);
 	win->getCanvas()->Children->Add(rootWidget_);
-	win->Content = win->getCanvas();
 
-
-
+	win->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &NodeWidget::OnMouseMove);
 	win->MouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(win, &BrainView::OnMouseClickWin);
 	rootWidget_->MouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &NodeWidget::NodeClic);
 }
@@ -145,7 +143,16 @@ void NodeWidget::AddLink(System::Object ^sender, System::Windows::RoutedEventArg
 	win->mode_ = BrainView::Mode::LINK_NODE;
 }
 
-
+void	NodeWidget::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
+	if (win->selected_) {
+		if (win->mode_ == BrainView::Mode::MOVE) {
+			win->selected_->posX_ = (UInt32)e->GetPosition(win).X;
+			win->selected_->posY_ = (UInt32)e->GetPosition(win).Y;
+			Canvas::SetTop(win->selected_->rootWidget_, e->GetPosition(win).Y);
+			Canvas::SetLeft(win->selected_->rootWidget_, e->GetPosition(win).X);
+		}
+	}
+}
 void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e)
 {
 	if (win->selected_) {
