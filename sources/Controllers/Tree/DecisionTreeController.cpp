@@ -11,8 +11,10 @@ tree_(tree)
 Dictionary<String^, ANode^> ^DecisionTreeController::getChildren(ANode^ Node)
 {return Node->getChildren();}
 
-void DecisionTreeController::addChild(ANode^ Node, ANode ^Child)
-{Node->AddChild(Child);}
+void DecisionTreeController::addChild(ANode^ node, ANode ^child) {
+	node->AddChild(child);
+	tree_->RegisterNode(node);
+}
 
 List<ANode^> ^DecisionTreeController::getNodesList()
 {return nullptr;}

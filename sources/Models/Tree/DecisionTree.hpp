@@ -18,6 +18,8 @@ private:
 public:
 	DecisionTree();
 
+	ANode ^getRootNode();
+	void	setRootNode(ANode ^node);
 	List<ANode ^>	^getNodes();
-
+	void RegisterNode(ANode ^node);
 };

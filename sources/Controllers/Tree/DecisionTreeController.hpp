@@ -21,9 +21,9 @@ private:
 	DecisionTree ^tree_;
 
 public:
-	Dictionary<String^, ANode^> ^getChildren(ANode^ Node);
-	void addChild(ANode^ Node, ANode^ Child);
+	Dictionary<String^, ANode^> ^getChildren(ANode^ node);
+	void addChild(ANode^ node, ANode^ child);
 	List<ANode^> ^getNodesList();
 	Dictionary<String ^, Type^>^getNodesTypes();
-	void setNodePos(ANode^ Node, UInt32 X, UInt32 Y);
+	void setNodePos(ANode^ node, UInt32 x, UInt32 y);
 };
