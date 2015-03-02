@@ -27,12 +27,11 @@ public:
 	Button^ bBuild_;
 	Button	^bMove_;
 	TextBox^ tBox_;
-
 public:
 	NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, CodeNode ^node);
 	void AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 	void ButtonBuild(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
-	void OnMouseClickButtonMove(Object^ sender, RoutedEventArgs^ e);
+	void OnMouseClickButtonMove(Object^ sender, MouseButtonEventArgs^ e);
 	void NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e);
 	void	OnMouseMove(Object ^sender, MouseEventArgs ^e);
 

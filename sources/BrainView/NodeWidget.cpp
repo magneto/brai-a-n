@@ -63,7 +63,8 @@ posY_(posY)
 	bBuild_->Tag = this;
 	bBuild_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::ButtonBuild);
 	bAdd_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::AddLink);
-	bMove_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::OnMouseClickButtonMove);
+	bMove_->PreviewMouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &NodeWidget::OnMouseClickButtonMove);
+	//bMove_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::OnMouseClickButtonMove);
 
 
 	BitmapImage ^btm = gcnew BitmapImage(gcnew Uri(".\\Images\\objects_button_n.png", UriKind::Relative));
@@ -83,10 +84,10 @@ posY_(posY)
 	img3->Stretch = Stretch::Fill;
 	bMove_->Content = img3;
 
+	spButton_->Children->Add(bMove_);
 	spButton_->Children->Add(bRemove_);
 	spButton_->Children->Add(bAdd_);
 	spButton_->Children->Add(bBuild_);
-	spButton_->Children->Add(bMove_);
 
 	tBox_->Width = 350;
 	tBox_->Height = 220;
@@ -122,7 +123,7 @@ void NodeWidget::ButtonBuild(System::Object ^sender, System::Windows::RoutedEven
 	}
 }
 
-void NodeWidget::OnMouseClickButtonMove(Object^ sender, RoutedEventArgs^ e)
+void NodeWidget::OnMouseClickButtonMove(Object^ sender, MouseButtonEventArgs^ e)
 {
 	if (win->selected_) {
 		win->selected_->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
