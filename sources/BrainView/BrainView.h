@@ -18,10 +18,9 @@ public:
 	};
 	Mode	mode_;
 	NodeWidget ^selected_;
-
-
 	Menu	^menu_;
 	Canvas	^canvas_;
+	ScrollViewer^ scroll_;
 
 public:
 
@@ -31,6 +30,7 @@ public:
 	void BrainView::OnMouseClickWin(Object^ sender, MouseButtonEventArgs^ e);
 	void RightClick(Object ^sender, MouseButtonEventArgs^ e);
 	void NodesCreate(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
+
 
 	void UpdateLinks();
 };

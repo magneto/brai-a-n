@@ -28,5 +28,6 @@ protected:
 [STAThread]
 int main(array<String^>^ args)
 {
+
 	return (gcnew Appli())->Run();
 }

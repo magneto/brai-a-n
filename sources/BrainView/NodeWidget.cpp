@@ -147,10 +147,10 @@ void NodeWidget::AddLink(System::Object ^sender, System::Windows::RoutedEventArg
 void	NodeWidget::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
 	if (win->selected_) {
 		if (win->mode_ == BrainView::Mode::MOVE) {
-			win->selected_->posX_ = (UInt32)e->GetPosition(win).X;
-			win->selected_->posY_ = (UInt32)e->GetPosition(win).Y;
-			Canvas::SetTop(win->selected_->rootWidget_, e->GetPosition(win).Y);
-			Canvas::SetLeft(win->selected_->rootWidget_, e->GetPosition(win).X);
+			win->selected_->posX_ = (UInt32)e->GetPosition(win).X + win->scroll_->ContentHorizontalOffset;
+			win->selected_->posY_ = (UInt32)e->GetPosition(win).Y + win->scroll_->ContentVerticalOffset;
+			Canvas::SetTop(win->selected_->rootWidget_, e->GetPosition(win).Y + win->scroll_->ContentVerticalOffset);
+			Canvas::SetLeft(win->selected_->rootWidget_, e->GetPosition(win).X + win->scroll_->ContentHorizontalOffset);
 		}
 	}
 }
@@ -165,8 +165,8 @@ void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseB
 			l->Stroke = System::Windows::Media::Brushes::Black;
 			l->X1 = win->selected_->posX_;
 			l->Y1 = win->selected_->posY_;
-			l->X2 = e->GetPosition(win).X;
-			l->Y2 = e->GetPosition(win).Y;
+			l->X2 = e->GetPosition(win).X + win->scroll_->ContentHorizontalOffset;
+			l->Y2 = e->GetPosition(win).Y + win->scroll_->ContentVerticalOffset;
 
 			win->canvas_->Children->Add(l);
 		}
