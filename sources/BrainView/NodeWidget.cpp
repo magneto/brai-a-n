@@ -66,7 +66,7 @@ posY_(posY)
 	bMove_->PreviewMouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &NodeWidget::OnMouseClickButtonMove);
 	//bMove_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::OnMouseClickButtonMove);
 
-
+	
 	BitmapImage ^btm = gcnew BitmapImage(gcnew Uri(".\\Images\\objects_button_n.png", UriKind::Relative));
 	Image ^img = gcnew Image();
 	img->Source = btm;
@@ -152,6 +152,11 @@ void	NodeWidget::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
 			Canvas::SetTop(win->selected_->rootWidget_, e->GetPosition(win).Y + win->scroll_->ContentVerticalOffset);
 			Canvas::SetLeft(win->selected_->rootWidget_, e->GetPosition(win).X + win->scroll_->ContentHorizontalOffset);
 		}
+	}
+	if (win->moveWheel_)
+	{
+		win->scroll_->ScrollToHorizontalOffset(win->scroll_->ContentHorizontalOffset + ((win->lastWheelX_ - e->GetPosition(win).X) / 10));
+		win->scroll_->ScrollToVerticalOffset(win->scroll_->ContentVerticalOffset + ((win->lastWheelY_ - e->GetPosition(win).Y) / 10));
 	}
 }
 void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e)

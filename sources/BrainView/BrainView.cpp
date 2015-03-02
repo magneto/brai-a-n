@@ -13,6 +13,8 @@ scroll_(gcnew ScrollViewer()){
 	this->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x20, 0x20, 0x20));
 
 	this->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
+	this->MouseUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelUp);
+	this->MouseDown += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelDown);
 
 	this->canvas_->Width = 10000;
 	this->canvas_->Height = 10000;
@@ -24,6 +26,22 @@ scroll_(gcnew ScrollViewer()){
 	this->Content = this->scroll_;
 	NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;"));
 	/*NodeWidget ^b = gcnew NodeWidget(this, 210, 10, "test2");*/
+}
+
+Void BrainView::OnMouseClickWheelDown(Object^ sender, MouseButtonEventArgs^ e)
+{
+	if (e->ChangedButton == MouseButton::Middle)
+	{
+		this->moveWheel_ = true;
+		this->lastWheelX_ = e->GetPosition(this).X;
+		this->lastWheelY_ = e->GetPosition(this).Y;
+	}
+}
+
+Void BrainView::OnMouseClickWheelUp(Object^ sender, MouseButtonEventArgs^ e)
+{
+	if (e->ChangedButton == MouseButton::Middle)
+		this->moveWheel_ = false;
 }
 
 Canvas ^BrainView::getCanvas() {
