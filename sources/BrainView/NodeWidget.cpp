@@ -18,9 +18,10 @@ bAdd_(gcnew Button()),
 bBuild_(gcnew Button()),
 bMove_(gcnew Button()),
 tBox_(gcnew TextBox()),
-posX_(posX),
-posY_(posY)
+lines_(gcnew List<Line ^>(10))
 {
+	posX_ = posX;
+	posY_ = posY;
 	rootWidget_->Width = 355;
 	rootWidget_->Height = 305;
 
@@ -158,6 +159,8 @@ void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseB
 {
 	if (win->selected_) {
 		if (win->mode_ == BrainView::Mode::LINK_NODE) {
+			if ((Grid ^)sender == this->rootWidget_)
+				Console::WriteLine("Error: [I000]");
 			Line ^l = gcnew Line();
 
 			l->Visibility = System::Windows::Visibility::Visible;
@@ -168,6 +171,7 @@ void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseB
 			l->X2 = e->GetPosition(win).X + win->scroll_->ContentHorizontalOffset;
 			l->Y2 = e->GetPosition(win).Y + win->scroll_->ContentVerticalOffset;
 
+			lines_->Add(l);
 			win->canvas_->Children->Add(l);
 		}
 	}

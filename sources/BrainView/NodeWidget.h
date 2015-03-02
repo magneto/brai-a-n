@@ -12,8 +12,29 @@ ref class NodeWidget
 {
 public:
 	CodeNode	^node_;
-	UInt32		posX_;
-	UInt32		posY_;
+	UInt32 _x;
+	UInt32 _y;
+	property UInt32		posX_ {
+		UInt32 get() {
+			return _x;
+		}
+		void set(UInt32 i) {
+			_x = i;
+			for each (Line ^l in lines_)
+				l->X1 = i;
+		}
+	}
+	property UInt32		posY_ {
+		UInt32 get() {
+			return _y;
+		}
+		void set(UInt32 i) {
+			_y = i;
+			for each (Line ^l in lines_)
+				l->Y1 = i;
+		}
+	}
+	List<Line ^> ^lines_;
 	BrainView^ win;
 	Grid	^rootWidget_;
 	StackPanel^ spRoot_;
