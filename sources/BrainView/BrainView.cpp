@@ -15,6 +15,7 @@ scroll_(gcnew ScrollViewer()){
 	this->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
 	this->MouseUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelUp);
 	this->MouseDown += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelDown);
+	this->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &BrainView::OnMouseMove);
 
 	this->canvas_->Width = 10000;
 	this->canvas_->Height = 10000;
@@ -36,6 +37,17 @@ Void BrainView::OnMouseClickWheelDown(Object^ sender, MouseButtonEventArgs^ e)
 		this->lastWheelX_ = e->GetPosition(this).X;
 		this->lastWheelY_ = e->GetPosition(this).Y;
 	}
+}
+
+void	BrainView::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
+	if (moveWheel_)
+	{
+		scroll_->ScrollToHorizontalOffset(scroll_->ContentHorizontalOffset + (lastWheelX_ - e->GetPosition(this).X));
+		scroll_->ScrollToVerticalOffset(scroll_->ContentVerticalOffset + (lastWheelY_ - e->GetPosition(this).Y));
+
+	}
+	lastWheelX_ = e->GetPosition(this).X;
+	lastWheelY_ = e->GetPosition(this).Y;
 }
 
 Void BrainView::OnMouseClickWheelUp(Object^ sender, MouseButtonEventArgs^ e)

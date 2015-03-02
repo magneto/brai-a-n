@@ -153,11 +153,6 @@ void	NodeWidget::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
 			Canvas::SetLeft(win->selected_->rootWidget_, e->GetPosition(win).X + win->scroll_->ContentHorizontalOffset);
 		}
 	}
-	if (win->moveWheel_)
-	{
-		win->scroll_->ScrollToHorizontalOffset(win->scroll_->ContentHorizontalOffset + ((win->lastWheelX_ - e->GetPosition(win).X) / 10));
-		win->scroll_->ScrollToVerticalOffset(win->scroll_->ContentVerticalOffset + ((win->lastWheelY_ - e->GetPosition(win).Y) / 10));
-	}
 }
 void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e)
 {
