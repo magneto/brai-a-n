@@ -7,7 +7,7 @@
 #  include <arpa/inet.h>
 # endif //_WIN32_WINNT
 # include <cstdint>
-# include "MessageTypes.h"
+# include "MessageTypes.hpp"
 
 /*
 **	Below are types & constants definitions

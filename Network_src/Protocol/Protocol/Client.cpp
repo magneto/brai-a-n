@@ -3,7 +3,7 @@
 #include <utility>
 #include <cstring>
 #include <boost/array.hpp>
-#include "Client.h"
+#include "Client.hpp"
 
 Client::Client(const char* host, short port):
 	io_service(), socket(io_service), msgFactory(),

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <array>
-#include "Client.h"
+#include "Client.hpp"
 #include <boost/array.hpp>
 
 /*
@@ -24,30 +24,46 @@ int	main()
 struct header
 {
 	int		length;
-	char	type;
+	unsigned char	type;
 };
 
 struct connectReq
 {
 	int		length;
-	char	type;
+	unsigned char	type;
 	char	version[sizeof(CLIENT_VERSION)];
 };
 
 struct connectRep
 {
-	header	h;
-	char	slot;
+	header			h;
+	unsigned char	slot;
 };
 
+struct mapInfo
+{
+	int32	time;
+	bool	dayTime;
+	int8	moonPhase;
+	bool	bloodMoon;
+	bool	eclipse;
+	int32	mapWidth;
+	int32	mapHeight;
+	int32	spawnX;
+	int32	spawnY;
+	int8	misc[61];
+};
 #pragma pack(pop)
+
+static int i = sizeof(mapInfo);
 
 void	connectionReq(boost::asio::ip::tcp::socket& socket, boost::asio::ip::udp::endpoint& serverEp)
 {
 	connectReq	c;
 
-	c.length = htons(sizeof(c) - sizeof(int));
-	c.type = 1;
+	c.length = sizeof(c) - sizeof(int);
+	//c.length = htons(c.length);
+	c.type = 6;
 	std::strcpy(c.version, CLIENT_VERSION);
 
 	//socket.write(boost::asio::buffer(&c, sizeof(c)), serverEp);
@@ -58,6 +74,7 @@ void	connectionReq(boost::asio::ip::tcp::socket& socket, boost::asio::ip::udp::e
 
 static boost::asio::io_service			ios;
 static boost::asio::ip::udp::socket		s(ios);
+static boost::asio::ip::udp::endpoint	serverEp(boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777);
 
 void	connectionRep(boost::asio::ip::tcp::socket& socket)
 {
@@ -65,7 +82,8 @@ void	connectionRep(boost::asio::ip::tcp::socket& socket)
 
 	std::cout << "receiving response..." << std::endl;
 
-	socket.receive(boost::asio::buffer(&c, sizeof(c)));
+	std::size_t ret = socket.receive(boost::asio::buffer(&c, sizeof(c)));
+
 	//socket.read_some(boost::asio::buffer(&c, sizeof(c)));
 
 	/*
@@ -77,27 +95,29 @@ void	connectionRep(boost::asio::ip::tcp::socket& socket)
 	//auto& b = boost::asio::buffer(buf);
 	//s.receive_from(b, remote);
 
-	std::cout << "end" << std::endl;
+
+	std::cout << "recieved " << ret << " bytes" << std::endl;
+	std::cout << c.h.type << std::endl;
 }
 
 int	main()
 {
-	s.open(udp::v4());
-	boost::asio::ip::udp::endpoint	serverEp(boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777);
 	boost::asio::ip::tcp::socket	socket(ios);
 
 	try
 	{
+		s.open(udp::v4());
 		socket.connect(boost::asio::ip::tcp::endpoint(boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777));
-		//connectionReq(socket, serverEp);
-		//connectionRep(socket);
+
+		connectionReq(socket, serverEp);
+		connectionRep(socket);
+
+		socket.shutdown(udp::socket::shutdown_send);
+		socket.close();
 	}
 	catch (std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
 	std::getchar();
-
-	socket.shutdown(udp::socket::shutdown_send);
-	//socket.close();
 }

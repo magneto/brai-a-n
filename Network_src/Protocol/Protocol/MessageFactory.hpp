@@ -2,7 +2,7 @@
 
 # include <map>
 # include <memory>
-# include "MsgWrapper.h"
+# include "MsgWrapper.hpp"
 
 /*
 **	A Factory for Terria Messages (client <-> server)

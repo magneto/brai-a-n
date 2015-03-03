@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <vector>
 #include <string>
-#include "MessageFactory.h"
+#include "MessageFactory.hpp"
 
 const MessageFactory::CmdRegistry MessageFactory::requestsRegistry =
 {

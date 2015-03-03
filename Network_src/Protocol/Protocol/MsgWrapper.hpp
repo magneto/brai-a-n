@@ -1,7 +1,7 @@
 #pragma once
 
 # include <memory>
-# include "Message.h"
+# include "Message.hpp"
 
 class MessageFactory;
 
