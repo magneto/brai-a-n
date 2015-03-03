@@ -24,12 +24,11 @@ dpWin_(gcnew DockPanel()) {
 
 	this->canvas_->Width = 10000;
 	this->canvas_->Height = 10000;
-	this->scroll_->HorizontalScrollBarVisibility = ScrollBarVisibility::Auto;
-	this->scroll_->VerticalScrollBarVisibility = ScrollBarVisibility::Auto;
+	this->scroll_->HorizontalScrollBarVisibility = ScrollBarVisibility::Visible;
+	this->scroll_->VerticalScrollBarVisibility = ScrollBarVisibility::Visible;
 	this->scroll_->Content = this->canvas_;
+	//this->scroll_->FlowDirection = FlowDirection::RightToLeft;
 
-	dpWin_->Width = this->Width;
-	dpWin_->Height = this->Height;
 	dpWin_->SetDock(fileMenu_, Dock::Top);
 	dpWin_->SetDock(scroll_, Dock::Bottom);
 	dpWin_->Children->Add(fileMenu_);
@@ -101,7 +100,6 @@ void	BrainView::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
 
 void BrainView::RightClick(Object^ sender, MouseButtonEventArgs^ e)
 {
-	Console::WriteLine("FUCK OFF");
 	if (menu_) {
 		this->canvas_->Children->Remove(menu_);
 	}
@@ -179,8 +177,8 @@ void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)
 
 void BrainView::WinSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
 {
-	dpWin_->Width = this->ActualWidth;
-	dpWin_->Height = this->ActualHeight;
+	dpWin_->Width = this->ActualWidth - 15;
+	dpWin_->Height = this->ActualHeight - 40;
 }
 
 void	BrainView::UpdateLinks() {
