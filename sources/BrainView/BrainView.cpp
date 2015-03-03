@@ -2,6 +2,7 @@
 
 #include "BrainView.h"
 #include "Models\Tree\Nodes\CodeNode.hpp"
+#using <System.Windows.Forms.dll>
 using namespace System::Windows::Media::Imaging;
 using namespace Microsoft::Win32;
 
@@ -144,7 +145,7 @@ void BrainView::OnMouseClickSave(Object^ sender, RoutedEventArgs^ e)
 	Stream^ stream;
 
 	dialogSave->Filter = "Images (*.jgp, *.png) | *.jpg; *.png";
-	if (dialogSave->ShowDialog())
+	if (dialogSave->ShowDialog().Value)
 	{
 		if ((stream = dialogSave->OpenFile()) != nullptr)
 		{
@@ -161,7 +162,7 @@ void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)
 	Stream^ stream;
 
 	dialogOpen->Filter = "Images (*.jgp, *.png) | *.jpg; *.png";
-	if (dialogOpen->ShowDialog())
+	if (dialogOpen->ShowDialog().Value)
 	{
 		if ((stream = dialogOpen->OpenFile()) != nullptr)
 		{
