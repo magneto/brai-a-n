@@ -35,8 +35,9 @@ public:
 	void NodesCreate(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 	Void OnMouseClickWheelUp(Object^ sender, MouseButtonEventArgs^ e);
 	Void OnMouseClickWheelDown(Object^ sender, MouseButtonEventArgs^ e);
-void	OnMouseMove(Object ^sender, MouseEventArgs ^e);
-
+	void OnMouseMove(Object ^sender, MouseEventArgs ^e);
+	void OnMouseClickSave(Object ^sender, RoutedEventArgs^ e);
+	void OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e);
 
 	void UpdateLinks();
 };
