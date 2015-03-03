@@ -9,29 +9,35 @@ using namespace Microsoft::Win32;
 
 BrainView::BrainView(void) :
 canvas_(gcnew Canvas()),
-scroll_(gcnew ScrollViewer()) {
+scroll_(gcnew ScrollViewer()),
+fileMenu_(gcnew Menu()),
+dpWin_(gcnew DockPanel()) {
 	this->Title = "PFA";
 	this->Width = 1200;
 	this->Height = 800;
 	this->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x20, 0x20, 0x20));
 
-	this->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
-	this->MouseUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelUp);
-	this->MouseDown += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelDown);
-	this->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &BrainView::OnMouseMove);
+	this->scroll_->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
+	this->scroll_->MouseUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelUp);
+	this->scroll_->MouseDown += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelDown);
+	this->scroll_->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &BrainView::OnMouseMove);
 
 	this->canvas_->Width = 10000;
 	this->canvas_->Height = 10000;
 	this->scroll_->HorizontalScrollBarVisibility = ScrollBarVisibility::Auto;
 	this->scroll_->VerticalScrollBarVisibility = ScrollBarVisibility::Auto;
 	this->scroll_->Content = this->canvas_;
-	this->Resources;
 
-	Menu^ fileMenu = gcnew Menu();
-	fileMenu->IsMainMenu = true;
+	dpWin_->Width = this->Width;
+	dpWin_->Height = this->Height;
+	dpWin_->SetDock(fileMenu_, Dock::Top);
+	dpWin_->SetDock(scroll_, Dock::Bottom);
+	dpWin_->Children->Add(fileMenu_);
+	dpWin_->Children->Add(scroll_);
+	fileMenu_->IsMainMenu = true;
 	MenuItem^ fileItem = gcnew MenuItem();
 	fileItem->Header = "_File";
-	fileMenu->Items->Add(fileItem);
+	fileMenu_->Items->Add(fileItem);
 	MenuItem^ itemSave = gcnew MenuItem();
 	itemSave->Header = "_Save";
 	ImageSource ^imgSourceSave = gcnew BitmapImage(gcnew Uri(".\\save.jpg", UriKind::Relative));
@@ -53,12 +59,10 @@ scroll_(gcnew ScrollViewer()) {
 	fileItem->Items->Add(itemLoad);
 	itemSave->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickSave);
 	itemLoad->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickLoad);
-	this->canvas_->Children->Add(fileMenu);
+	//this->canvas_->Children->Add(fileMenu_);
 
-	
-
-
-	this->Content = this->scroll_;
+	this->Content = dpWin_;
+	this->SizeChanged += gcnew System::Windows::SizeChangedEventHandler(this, &BrainView::WinSizeChanged);
 	NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;"));
 	/*NodeWidget ^b = gcnew NodeWidget(this, 210, 10, "test2");*/
 }
@@ -97,6 +101,7 @@ void	BrainView::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
 
 void BrainView::RightClick(Object^ sender, MouseButtonEventArgs^ e)
 {
+	Console::WriteLine("FUCK OFF");
 	if (menu_) {
 		this->canvas_->Children->Remove(menu_);
 	}
@@ -106,8 +111,8 @@ void BrainView::RightClick(Object^ sender, MouseButtonEventArgs^ e)
 	i->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::NodesCreate);
 
 	menu_->Items->Add(i);
-	Canvas::SetTop(menu_, e->GetPosition(this).Y + this->scroll_->ContentVerticalOffset);
-	Canvas::SetLeft(menu_, e->GetPosition(this).X + this->scroll_->ContentHorizontalOffset);
+	Canvas::SetTop(menu_, e->GetPosition(canvas_).Y);
+	Canvas::SetLeft(menu_, e->GetPosition(canvas_).X);
 	this->canvas_->Children->Add(menu_);
 }
 
@@ -127,10 +132,10 @@ void BrainView::OnMouseClickWin(Object^ sender, MouseButtonEventArgs^ e)
 	}
 	if (selected_) {
 		if (mode_ == BrainView::Mode::MOVE) {
-			selected_->posX_ = (UInt32)e->GetPosition(this).X + this->scroll_->ContentHorizontalOffset;
-			selected_->posY_ = (UInt32)e->GetPosition(this).Y + this->scroll_->ContentVerticalOffset;
-			Canvas::SetTop(selected_->rootWidget_, e->GetPosition(this).Y + this->scroll_->ContentVerticalOffset);
-			Canvas::SetLeft(selected_->rootWidget_, e->GetPosition(this).X + this->scroll_->ContentHorizontalOffset);
+			selected_->posX_ = (UInt32)e->GetPosition(canvas_).X;
+			selected_->posY_ = (UInt32)e->GetPosition(canvas_).Y;
+			Canvas::SetTop(selected_->rootWidget_, e->GetPosition(canvas_).Y);
+			Canvas::SetLeft(selected_->rootWidget_, e->GetPosition(canvas_).X);
 			selected_->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
 			selected_ = nullptr;
 		}
@@ -170,6 +175,12 @@ void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)
 			stream->Close();
 		}
 	}
+}
+
+void BrainView::WinSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
+{
+	dpWin_->Width = this->ActualWidth;
+	dpWin_->Height = this->ActualHeight;
 }
 
 void	BrainView::UpdateLinks() {

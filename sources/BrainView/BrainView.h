@@ -20,8 +20,10 @@ public:
 	Mode	mode_;
 	NodeWidget ^selected_;
 	Menu	^menu_;
+	Menu^ fileMenu_;
 	Canvas	^canvas_;
 	ScrollViewer^ scroll_;
+	DockPanel^ dpWin_;
 	int lastWheelX_;
 	int lastWheelY_;
 
@@ -38,6 +40,7 @@ public:
 	void OnMouseMove(Object ^sender, MouseEventArgs ^e);
 	void OnMouseClickSave(Object ^sender, RoutedEventArgs^ e);
 	void OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e);
+	void WinSizeChanged(Object^ sender, SizeChangedEventArgs^ e);
 
 	void UpdateLinks();
 };

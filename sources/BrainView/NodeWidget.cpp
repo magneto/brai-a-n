@@ -64,7 +64,6 @@ posY_(posY)
 	bBuild_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::ButtonBuild);
 	bAdd_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::AddLink);
 	bMove_->PreviewMouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &NodeWidget::OnMouseClickButtonMove);
-	//bMove_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::OnMouseClickButtonMove);
 
 	
 	BitmapImage ^btm = gcnew BitmapImage(gcnew Uri(".\\Images\\objects_button_n.png", UriKind::Relative));
@@ -112,8 +111,8 @@ posY_(posY)
 	Canvas::SetLeft(rootWidget_, posX);
 	win->getCanvas()->Children->Add(rootWidget_);
 
-	win->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &NodeWidget::OnMouseMove);
-	win->MouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(win, &BrainView::OnMouseClickWin);
+	win->scroll_->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &NodeWidget::OnMouseMove);
+	win->scroll_->MouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(win, &BrainView::OnMouseClickWin);
 	rootWidget_->MouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &NodeWidget::NodeClic);
 }
 
@@ -147,10 +146,10 @@ void NodeWidget::AddLink(System::Object ^sender, System::Windows::RoutedEventArg
 void	NodeWidget::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
 	if (win->selected_) {
 		if (win->mode_ == BrainView::Mode::MOVE) {
-			win->selected_->posX_ = (UInt32)e->GetPosition(win).X + win->scroll_->ContentHorizontalOffset;
-			win->selected_->posY_ = (UInt32)e->GetPosition(win).Y + win->scroll_->ContentVerticalOffset;
-			Canvas::SetTop(win->selected_->rootWidget_, e->GetPosition(win).Y + win->scroll_->ContentVerticalOffset);
-			Canvas::SetLeft(win->selected_->rootWidget_, e->GetPosition(win).X + win->scroll_->ContentHorizontalOffset);
+			win->selected_->posX_ = (UInt32)e->GetPosition(win->canvas_).X;
+			win->selected_->posY_ = (UInt32)e->GetPosition(win->canvas_).Y;
+			Canvas::SetTop(win->selected_->rootWidget_, e->GetPosition(win->canvas_).Y);
+			Canvas::SetLeft(win->selected_->rootWidget_, e->GetPosition(win->canvas_).X);
 		}
 	}
 }
@@ -165,8 +164,8 @@ void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseB
 			l->Stroke = System::Windows::Media::Brushes::Black;
 			l->X1 = win->selected_->posX_;
 			l->Y1 = win->selected_->posY_;
-			l->X2 = e->GetPosition(win).X + win->scroll_->ContentHorizontalOffset;
-			l->Y2 = e->GetPosition(win).Y + win->scroll_->ContentVerticalOffset;
+			l->X2 = e->GetPosition(win->canvas_).X;
+			l->Y2 = e->GetPosition(win->canvas_).Y;
 
 			win->canvas_->Children->Add(l);
 		}
