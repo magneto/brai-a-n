@@ -11,7 +11,7 @@ BrainView::BrainView(void) :
 canvas_(gcnew Canvas()),
 scroll_(gcnew ScrollViewer()),
 fileMenu_(gcnew Menu()),
-dpWin_(gcnew DockPanel()) {
+dpWin_(gcnew DockPanel()){
 	this->Title = "PFA";
 	this->Width = 1200;
 	this->Height = 800;

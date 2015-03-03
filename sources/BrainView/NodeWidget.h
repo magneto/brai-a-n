@@ -27,14 +27,18 @@ public:
 	Button^ bBuild_;
 	Button	^bMove_;
 	TextBox^ tBox_;
+	ContextMenu^ menuNode_;
+
+
 public:
 	NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, CodeNode ^node);
-	void AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 	void ButtonBuild(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 	void OnMouseClickButtonMove(Object^ sender, MouseButtonEventArgs^ e);
 	void NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e);
 	void	OnMouseMove(Object ^sender, MouseEventArgs ^e);
-
+	void OpenMenuNode(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
+	void AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
+	void DeleteLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 };
 
 #endif NODE_H_ // NODE_H_

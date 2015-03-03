@@ -114,15 +114,6 @@ menuNode_(gcnew ContextMenu()) {
 	win->scroll_->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &NodeWidget::OnMouseMove);
 	win->scroll_->MouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(win, &BrainView::OnMouseClickWin);
 	rootWidget_->MouseLeftButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &NodeWidget::NodeClic);
-
-	MenuItem^ itemAdd = gcnew MenuItem();
-	MenuItem^ itemDelete = gcnew MenuItem();
-	itemAdd->Header = "Add node";
-	itemDelete->Header = "Delete node";
-	menuNode_->Items->Add(itemAdd);
-	menuNode_->Items->Add(itemDelete);
-	itemAdd->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::AddLink);
-	itemDelete->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::DeleteLink);
 }
 
 void NodeWidget::ButtonBuild(System::Object ^sender, System::Windows::RoutedEventArgs ^e) {
@@ -147,18 +138,40 @@ void NodeWidget::OnMouseClickButtonMove(Object^ sender, MouseButtonEventArgs^ e)
 
 void NodeWidget::OpenMenuNode(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
 {
-	menuNode_->IsOpen = true;	
+	/*MenuItem^ itemAdd = gcnew MenuItem();
+	MenuItem^ itemDelete = gcnew MenuItem();
+
+	itemAdd->Header = "_Add node";
+	itemDelete->Header = "_Delete node";
+	menuNode_->Items->Add(itemAdd);
+	menuNode_->Items->Add(itemDelete);
+	Canvas::SetTop(rtb, bAdd_->TransformToAncestor(win->scroll_)->Transform(System::Windows::Point(0, 0)).Y);
+	Canvas::SetLeft(rtb, bAdd_->TransformToAncestor(win->scroll_)->Transform(System::Windows::Point(0, 0)).X);
+	rtb->ContextMenu = menuNode_;
+	win->canvas_->Children->Add(rtb);*/
+
+	Grid^ sp = gcnew Grid();
+
+
+	ContextMenu^ menuNode = gcnew ContextMenu();
+	MenuItem^ itemAdd = gcnew MenuItem();
+	itemAdd->Header = "Add node";
+	menuNode->Items->Add(itemAdd);
+	MenuItem^ itemDelete = gcnew MenuItem();
+	itemDelete->Header = "Delete node";
+	menuNode->Items->Add(itemDelete);
+	Canvas::SetTop(sp, bAdd_->TransformToAncestor(win->scroll_)->Transform(System::Windows::Point(0, 0)).Y);
+	Canvas::SetLeft(sp, bAdd_->TransformToAncestor(win->scroll_)->Transform(System::Windows::Point(0, 0)).X);
+	sp->ContextMenu = menuNode;
+	sp->Width = 100;
+	sp->Height = 100;
+	win->canvas_->Children->Add(sp);
 }
 
 void NodeWidget::AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
 {
 	win->selected_ = this;
 	win->mode_ = BrainView::Mode::LINK_NODE;
-}
-
-void NodeWidget::DeleteLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
-{
-	Console::WriteLine("delete link");
 }
 
 void	NodeWidget::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
