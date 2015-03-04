@@ -60,6 +60,7 @@ NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, Cod
 		bMove_->Height = 50;
 		bMove_->Tag = this;
 		bRemove_->Margin = System::Windows::Thickness(29, 10, 0, 10);
+		bRemove_->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::OnMouseClickButtonRemove);
 		bAdd_->Margin = System::Windows::Thickness(29, 10, 0, 10);
 		bBuild_->Margin = System::Windows::Thickness(29, 10, 0, 10);
 		bMove_->Margin = System::Windows::Thickness(29, 10, 0, 10);
@@ -157,6 +158,12 @@ void NodeWidget::OnMouseClickButtonMove(Object^ sender, MouseButtonEventArgs^ e)
 	win->selected_ = n;
 	win->mode_ = BrainView::Mode::MOVE;
 }
+
+void NodeWidget::OnMouseClickButtonRemove(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
+{
+	this->win->canvas_->Children->Remove(this->rootWidget_);
+}
+
 
 void NodeWidget::OpenMenuNode(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
 {

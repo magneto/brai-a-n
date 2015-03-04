@@ -18,7 +18,6 @@ public:
 	MethodInfo ^entryPoint_;
 	bool	rebuild_;
 	TextBlock^ console_;
-
 public:
 	enum class LanguageSel {
 		CSHARP = 0,
