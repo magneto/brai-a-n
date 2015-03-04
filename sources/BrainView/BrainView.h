@@ -18,7 +18,7 @@ public:
 	Boolean moveWheel_;
 	Mode	mode_;
 	NodeWidget ^selected_;
-	Menu	^menu_;
+	System::Windows::Controls::ContextMenu	^addNodeMenu_;
 	Menu^ fileMenu_;
 	Canvas	^canvas_;
 	ScrollViewer^ scroll_;

@@ -124,8 +124,8 @@ NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, Cod
 
 		MenuItem^ itemAdd = gcnew MenuItem();
 		MenuItem^ itemDelete = gcnew MenuItem();
-		itemAdd->Header = "Add node";
-		itemDelete->Header = "Delete node";
+		itemAdd->Header = "Add child";
+		itemDelete->Header = "Delete child";
 		menuNode_->Items->Add(itemAdd);
 		menuNode_->Items->Add(itemDelete);
 		itemAdd->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::AddLink);
