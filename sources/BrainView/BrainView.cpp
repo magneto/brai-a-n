@@ -3,7 +3,6 @@
 #include "BrainView.h"
 #include "Models\Tree\Nodes\CodeNode.hpp"
 #using <System.Windows.Forms.dll>
-#using <PresentationFrameWork.dll>
 using namespace System::Windows::Media::Imaging;
 using namespace Microsoft::Win32;
 
@@ -36,14 +35,11 @@ consoleGrid_(gcnew Grid()) {
 	this->scroll_->HorizontalScrollBarVisibility = ScrollBarVisibility::Hidden;
 	this->scroll_->VerticalScrollBarVisibility = ScrollBarVisibility::Hidden;
 	this->scroll_->Content = this->canvas_;
-	//this->scroll_->FlowDirection = FlowDirection::RightToLeft;
 
-	consoleDebugTitle_->Width = 1200;
 	consoleDebugTitle_->Height = 25;
 	consoleDebugTitle_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0xFF, 0x9F, 0x3F));
 	consoleDebugTitle_->Text = "\tDebug Console";
 	consoleDebugTitle_->Foreground = gcnew SolidColorBrush(Colors::White);
-	consoleDebug_->Width = 1200;
 	consoleDebug_->Height = 200;
 	consoleDebug_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 100, 100, 100));
 	consoleDebug_->Foreground = gcnew SolidColorBrush(Colors::White);
@@ -98,7 +94,7 @@ consoleGrid_(gcnew Grid()) {
 
 	this->Content = dpWin_;
 	this->SizeChanged += gcnew System::Windows::SizeChangedEventHandler(this, &BrainView::WinSizeChanged);
-	NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;"));
+	NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;", consoleDebug_));
 	/*NodeWidget ^b = gcnew NodeWidget(this, 210, 10, "test2");*/
 }
 
@@ -143,7 +139,7 @@ void BrainView::NodesCreate(System::Object ^sender, RoutedEventArgs ^e)
 {
 	MenuItem ^i = (MenuItem ^)sender;
 
-	CodeNode ^n = gcnew CodeNode("int a;");
+	CodeNode ^n = gcnew CodeNode("int a;", consoleDebug_);
 	gcnew NodeWidget(this, 42 + this->scroll_->ContentHorizontalOffset, 42 + this->scroll_->ContentVerticalOffset, n->getName(), n);
 }
 
@@ -200,6 +196,7 @@ void BrainView::WinSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
 {
 	dpWin_->Width = this->ActualWidth - 15;
 	dpWin_->Height = this->ActualHeight - 40;
+	consoleGrid_->Width = this->ActualWidth;
 }
 
 void	BrainView::UpdateLinks() {
