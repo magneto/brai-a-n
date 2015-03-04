@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef FENETRE_H_
-#define FENETRE_H_
-
 #include "include.h"
 #include <iostream>
 
@@ -15,6 +12,8 @@ public:
 		MOVE = 0,
 		LINK_NODE = 1,
 		UNLINK_NODE = 2,
+		DELETE_LINK = 3,
+		NONE = 4
 	};
 	Boolean moveWheel_;
 	Mode	mode_;
@@ -44,5 +43,3 @@ public:
 
 	void UpdateLinks();
 };
-
-#endif // FENETRE_H_

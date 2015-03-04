@@ -21,6 +21,16 @@ String ^ANode::getName() { return name_; }
 Dictionary<String ^, ANode ^>	^ANode::getChildren() { return children_; }
 
 
-void	ANode::AddChild(ANode ^node) {
-	children_->Add(node->getName(), node);
+bool	ANode::AddChild(ANode ^node) {
+	if (children_->ContainsKey(node->getName())) {
+		return false;
+	}
+	children_[node->getName()] = node;
+	return true;
+}
+
+void ANode::RemoveChild(String ^name) {
+	if (children_->ContainsKey(name)) {
+		children_->Remove(name);
+	}
 }

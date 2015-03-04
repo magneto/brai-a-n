@@ -45,7 +45,8 @@ public:
 	String	^getName();
 	Dictionary<String ^, ANode ^>	^getChildren();
 
-	void AddChild(ANode ^node);
+	bool AddChild(ANode ^node);
+	void RemoveChild(String ^name);
 	generic<typename T>
 	virtual void Process(T val) abstract;
 };
