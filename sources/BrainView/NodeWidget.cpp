@@ -43,6 +43,8 @@ NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, Cod
 		tBoxTitle_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 100, 100, 100));
 		tBoxTitle_->BorderThickness = System::Windows::Thickness(0, 0, 0, 1);
 		tBoxTitle_->BorderBrush = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
+		tBoxTitle_->Text = node_->name_;
+		tBoxTitle_->TextChanged += gcnew System::Windows::Controls::TextChangedEventHandler(this, &NodeWidget::tBoxTitleChanged);
 		gTitle_->Children->Add(tBoxTitle_);
 
 		spButton_->Width = 350;
@@ -99,6 +101,9 @@ NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, Cod
 		tBox_->Foreground = gcnew SolidColorBrush(Colors::White);
 		tBox_->VerticalScrollBarVisibility = ScrollBarVisibility::Auto;
 		tBox_->HorizontalScrollBarVisibility = ScrollBarVisibility::Auto;
+		tBox_->TextChanged += gcnew System::Windows::Controls::TextChangedEventHandler(this, &NodeWidget::tBoxChanged);
+		tBox_->AcceptsReturn = true;
+		tBox_->Text = node_->code_;
 
 
 		rootWidget_->Children->Add(spRoot_);
@@ -125,6 +130,12 @@ NodeWidget::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, Cod
 		menuNode_->Items->Add(itemDelete);
 		itemAdd->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::AddLink);
 		itemDelete->Click += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget::DeleteLink);
+}
+void NodeWidget::tBoxTitleChanged(Object ^sender, TextChangedEventArgs ^e) {
+	node_->name_ = tBoxTitle_->Text;
+}
+void NodeWidget::tBoxChanged(Object ^sender, TextChangedEventArgs ^e) {
+	node_->code_ = tBox_->Text;
 }
 
 void NodeWidget::ButtonBuild(System::Object ^sender, System::Windows::RoutedEventArgs ^e) {

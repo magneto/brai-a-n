@@ -70,6 +70,9 @@ public:
 	Point	CalcLeftAttach();
 	Point	CalcRightAttach();
 	NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, CodeNode ^node);
+void tBoxChanged(Object ^sender, TextChangedEventArgs ^e);
+void tBoxTitleChanged(Object ^sender, TextChangedEventArgs ^e);
+
 	void ButtonBuild(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 	void OnMouseClickButtonMove(Object^ sender, MouseButtonEventArgs^ e);
 	void NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e);

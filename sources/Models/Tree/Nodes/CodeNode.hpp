@@ -10,6 +10,7 @@
 
 public ref class CodeNode : public ANode {
 protected:
+public:
 	String ^code_;
 	CompilerResults ^res_;
 	Object ^instance_;
