@@ -17,4 +17,5 @@ void FANNNode::Process(T value)
 {
 	if ((generated_ == false) || (outnb_ != children_->Count))
 		build();
+
 }
