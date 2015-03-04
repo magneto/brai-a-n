@@ -3,6 +3,7 @@
 #include "BrainView.h"
 #include "Models\Tree\Nodes\CodeNode.hpp"
 #using <System.Windows.Forms.dll>
+#using <PresentationFrameWork.dll>
 using namespace System::Windows::Media::Imaging;
 using namespace Microsoft::Win32;
 
@@ -12,7 +13,10 @@ canvas_(gcnew Canvas()),
 scroll_(gcnew ScrollViewer()),
 fileMenu_(gcnew Menu()),
 dpWin_(gcnew DockPanel()),
-addNodeMenu_(gcnew System::Windows::Controls::ContextMenu()) {
+addNodeMenu_(gcnew System::Windows::Controls::ContextMenu()),
+consoleDebug_(gcnew TextBlock()),
+consoleDebugTitle_(gcnew TextBlock()),
+consoleGrid_(gcnew Grid()) {
 	this->Title = "PFA";
 	this->Width = 1200;
 	this->Height = 800;
@@ -27,17 +31,42 @@ addNodeMenu_(gcnew System::Windows::Controls::ContextMenu()) {
 	this->scroll_->MouseUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelUp);
 	this->scroll_->MouseDown += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelDown);
 	this->scroll_->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &BrainView::OnMouseMove);
-
 	this->canvas_->Width = 10000;
 	this->canvas_->Height = 10000;
-	this->scroll_->HorizontalScrollBarVisibility = ScrollBarVisibility::Visible;
-	this->scroll_->VerticalScrollBarVisibility = ScrollBarVisibility::Visible;
+	this->scroll_->HorizontalScrollBarVisibility = ScrollBarVisibility::Hidden;
+	this->scroll_->VerticalScrollBarVisibility = ScrollBarVisibility::Hidden;
 	this->scroll_->Content = this->canvas_;
 	//this->scroll_->FlowDirection = FlowDirection::RightToLeft;
 
+	consoleDebugTitle_->Width = 1200;
+	consoleDebugTitle_->Height = 25;
+	consoleDebugTitle_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0xFF, 0x9F, 0x3F));
+	consoleDebugTitle_->Text = "\tDebug Console";
+	consoleDebugTitle_->Foreground = gcnew SolidColorBrush(Colors::White);
+	consoleDebug_->Width = 1200;
+	consoleDebug_->Height = 200;
+	consoleDebug_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 100, 100, 100));
+	consoleDebug_->Foreground = gcnew SolidColorBrush(Colors::White);
+	RowDefinition ^r = gcnew RowDefinition();
+	r->Height = GridLength(25);
+	RowDefinition ^r2 = gcnew RowDefinition();
+	r2->Height = GridLength::Auto;
+	consoleGrid_->RowDefinitions->Add(r);
+	consoleGrid_->RowDefinitions->Add(r2);
+	consoleGrid_->SetRow(consoleDebugTitle_, 0);
+	consoleGrid_->SetRow(consoleDebug_, 1);
+
+	consoleGrid_->Children->Add(consoleDebug_);
+	consoleGrid_->Children->Add(consoleDebugTitle_);
+
 	dpWin_->SetDock(fileMenu_, Dock::Top);
+	dpWin_->SetDock(consoleGrid_, Dock::Bottom);
+	//dpWin_->SetDock(consoleDebug_, Dock::Bottom);
 	dpWin_->SetDock(scroll_, Dock::Bottom);
+
 	dpWin_->Children->Add(fileMenu_);
+	dpWin_->Children->Add(consoleGrid_);
+	//dpWin_->Children->Add(consoleDebug_);
 	dpWin_->Children->Add(scroll_);
 	fileMenu_->IsMainMenu = true;
 	MenuItem^ fileItem = gcnew MenuItem();
@@ -64,6 +93,7 @@ addNodeMenu_(gcnew System::Windows::Controls::ContextMenu()) {
 	fileItem->Items->Add(itemLoad);
 	itemSave->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickSave);
 	itemLoad->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickLoad);
+	
 	//this->canvas_->Children->Add(fileMenu_);
 
 	this->Content = dpWin_;

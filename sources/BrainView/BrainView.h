@@ -25,6 +25,9 @@ public:
 	DockPanel^ dpWin_;
 	int lastWheelX_;
 	int lastWheelY_;
+	TextBlock^ consoleDebug_;
+	TextBlock ^consoleDebugTitle_;
+	Grid ^consoleGrid_;
 
 public:
 
