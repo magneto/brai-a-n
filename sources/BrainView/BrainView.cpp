@@ -40,29 +40,33 @@ consoleGrid_(gcnew Grid()) {
 	consoleDebugTitle_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0xFF, 0x9F, 0x3F));
 	consoleDebugTitle_->Text = "\tDebug Console";
 	consoleDebugTitle_->Foreground = gcnew SolidColorBrush(Colors::White);
-	consoleDebug_->Height = 200;
+	//consoleDebug_->Height = 500;
 	consoleDebug_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 100, 100, 100));
 	consoleDebug_->Foreground = gcnew SolidColorBrush(Colors::White);
+	ScrollViewer^ scrollConsole = gcnew ScrollViewer();
+	scrollConsole->VerticalScrollBarVisibility = ScrollBarVisibility::Visible;
+	scrollConsole->CanContentScroll = true;
+	scrollConsole->Content = consoleDebug_;
+	scrollConsole->ScrollToBottom();
 	RowDefinition ^r = gcnew RowDefinition();
 	r->Height = GridLength(25);
 	RowDefinition ^r2 = gcnew RowDefinition();
-	r2->Height = GridLength::Auto;
+	r2->Height = GridLength(180);
 	consoleGrid_->RowDefinitions->Add(r);
 	consoleGrid_->RowDefinitions->Add(r2);
 	consoleGrid_->SetRow(consoleDebugTitle_, 0);
-	consoleGrid_->SetRow(consoleDebug_, 1);
+	consoleGrid_->SetRow(scrollConsole, 1);
+	consoleGrid_->Height = 200;
 
-	consoleGrid_->Children->Add(consoleDebug_);
+	consoleGrid_->Children->Add(scrollConsole);
 	consoleGrid_->Children->Add(consoleDebugTitle_);
 
 	dpWin_->SetDock(fileMenu_, Dock::Top);
 	dpWin_->SetDock(consoleGrid_, Dock::Bottom);
-	//dpWin_->SetDock(consoleDebug_, Dock::Bottom);
 	dpWin_->SetDock(scroll_, Dock::Bottom);
 
 	dpWin_->Children->Add(fileMenu_);
 	dpWin_->Children->Add(consoleGrid_);
-	//dpWin_->Children->Add(consoleDebug_);
 	dpWin_->Children->Add(scroll_);
 	fileMenu_->IsMainMenu = true;
 	MenuItem^ fileItem = gcnew MenuItem();
@@ -90,12 +94,10 @@ consoleGrid_(gcnew Grid()) {
 	itemSave->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickSave);
 	itemLoad->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickLoad);
 	
-	//this->canvas_->Children->Add(fileMenu_);
 
 	this->Content = dpWin_;
 	this->SizeChanged += gcnew System::Windows::SizeChangedEventHandler(this, &BrainView::WinSizeChanged);
 	NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;", consoleDebug_));
-	/*NodeWidget ^b = gcnew NodeWidget(this, 210, 10, "test2");*/
 }
 
 Canvas ^BrainView::getCanvas() {
@@ -196,7 +198,7 @@ void BrainView::WinSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
 {
 	dpWin_->Width = this->ActualWidth - 15;
 	dpWin_->Height = this->ActualHeight - 40;
-	consoleGrid_->Width = this->ActualWidth;
+	consoleGrid_->Width = this->ActualWidth - 15;
 }
 
 void	BrainView::UpdateLinks() {

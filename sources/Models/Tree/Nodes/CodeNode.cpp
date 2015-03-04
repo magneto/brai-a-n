@@ -13,10 +13,11 @@ using namespace OnTheFly;
 
 CodeNode::CodeNode(String ^code, TextBlock^ console) :
 	ANode(), code_(code), res_(nullptr), rebuild_(true), language_(LanguageSel::CSHARP), console_(console) {
-	console_->Text = "test";
+
 }
 
 void CodeNode::Build() {
+	console_->Text += "test\n";
 	TextWriter ^errorWriter = Console::Error;
 	CompilerResults ^newRes = nullptr;
 
