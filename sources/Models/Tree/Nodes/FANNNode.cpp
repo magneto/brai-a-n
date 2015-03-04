@@ -3,6 +3,7 @@
 ** Contribs:
 */
 
+#include "C:\FANN\include\fann.h"
 #include "FANNNode.hpp"
 
 FANNNode::FANNNode():

@@ -10,6 +10,7 @@
 using namespace System;
 using namespace OnTheFly;
 
+
 CodeNode::CodeNode(String ^code) :
 	ANode(), code_(code), res_(nullptr), rebuild_(true), language_(LanguageSel::CSHARP) {
 }
