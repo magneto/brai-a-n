@@ -11,13 +11,19 @@ BrainView::BrainView(void) :
 canvas_(gcnew Canvas()),
 scroll_(gcnew ScrollViewer()),
 fileMenu_(gcnew Menu()),
-dpWin_(gcnew DockPanel()){
+dpWin_(gcnew DockPanel()),
+addNodeMenu_(gcnew System::Windows::Controls::ContextMenu()) {
 	this->Title = "PFA";
 	this->Width = 1200;
 	this->Height = 800;
 	this->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x20, 0x20, 0x20));
 
+	MenuItem^ itemCreateNode = gcnew MenuItem();
+	itemCreateNode->Header = "Create Node";
+	itemCreateNode->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::NodesCreate);
+	addNodeMenu_->Items->Add(itemCreateNode);
 	this->scroll_->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
+
 	this->scroll_->MouseUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelUp);
 	this->scroll_->MouseDown += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelDown);
 	this->scroll_->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &BrainView::OnMouseMove);
@@ -100,18 +106,7 @@ void	BrainView::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
 
 void BrainView::RightClick(Object^ sender, MouseButtonEventArgs^ e)
 {
-	if (menu_) {
-		this->canvas_->Children->Remove(menu_);
-	}
-	menu_ = gcnew Menu();
-	MenuItem^ i = gcnew MenuItem();
-	i->Header = "Create Node";
-	i->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::NodesCreate);
-
-	menu_->Items->Add(i);
-	Canvas::SetTop(menu_, e->GetPosition(canvas_).Y);
-	Canvas::SetLeft(menu_, e->GetPosition(canvas_).X);
-	this->canvas_->Children->Add(menu_);
+	this->addNodeMenu_->IsOpen = true;
 }
 
 void BrainView::NodesCreate(System::Object ^sender, RoutedEventArgs ^e)
@@ -120,14 +115,10 @@ void BrainView::NodesCreate(System::Object ^sender, RoutedEventArgs ^e)
 
 	CodeNode ^n = gcnew CodeNode("int a;");
 	gcnew NodeWidget(this, 42 + this->scroll_->ContentHorizontalOffset, 42 + this->scroll_->ContentVerticalOffset, n->getName(), n);
-	this->canvas_->Children->Remove(menu_);
 }
 
 void BrainView::OnMouseClickWin(Object^ sender, MouseButtonEventArgs^ e)
 {
-	if (menu_) {
-		this->canvas_->Children->Remove(menu_);
-	}
 	if (selected_) {
 		if (mode_ == BrainView::Mode::MOVE) {
 			selected_->posX_ = (UInt32)e->GetPosition(canvas_).X;
