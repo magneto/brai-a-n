@@ -7,7 +7,7 @@ enum class MsgType : std::int8_t
 	CONNECT = 0x01,
 	FATAL_ERR,
 	ACCEPTED,
-	PLAYER,
+	APPEARANCE,
 	INVENTORY,
 	WORLD_REQ,
 	WORLD_INFO,

@@ -6,7 +6,6 @@
 # else
 #  include <arpa/inet.h>
 # endif //_WIN32_WINNT
-# include <cstdint>
 # include "MsgTypes.hpp"
 # include "TerrariaInfo.hpp"
 
@@ -68,6 +67,47 @@ struct MapInfo : public Message
 	int32	spawnY;
 	int8	misc[61];
 	char	worldName[sizeof(WORLD_NAME) - 1];
+};
+
+/*****************************************************************************
+**	BOTH (client<->server)
+*****************************************************************************/
+struct Appearance : public Message
+{
+	int8	playerSlot;
+
+	int8	hairStyle;
+	int8	gender;
+	color	hair;
+	color	skin;
+	color	eye;
+	color	shirt;
+	color	undershirt;
+	color	pants;
+	color	shoes;
+
+	int8	difficulty;
+	char	playerName[sizeof(PLAYER_NAME) - 1];
+};
+
+struct Life : public Message
+{
+	int8	playerSlot;
+	int16	currLife;
+	int16	maxLife;
+};
+
+struct Mana : public Message
+{
+	int8	playerSlot;
+	int16	manaLevel;
+	int16	maxMana;
+};
+
+struct Buffs : public Message
+{
+	int8	playerSlot;
+	int8	buffTypes[10];
 };
 
 // packing is reset to 8

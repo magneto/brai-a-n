@@ -75,16 +75,42 @@ void	Client::connection()
 
 	Accepted	a;
 	syncResponse(&a, sizeof(a));
+	syncResponseCheck(a, MsgType::ACCEPTED);
+	
+	player.setLogged(true);
+	player.setSlot(a.playerSlot);
 }
 
-void	playerConfiguration()
+void	Client::playerConfiguration()
 {
-	// TO DO
+	Appearance	a;
+	Life		l;
+	Mana		m;
+	Buffs		b;
+
+
+	a.playerSlot = player.getSlot();
+	// TODO
+
+	l.playerSlot = player.getSlot();
+	// TODO
+
+	m.playerSlot = player.getSlot();
+	// TODO
+
+	b.playerSlot = player.getSlot();
+	// TODO
+
+
+	syncRequest(&a, sizeof(a));
+	syncRequest(&l, sizeof(l));
+	syncRequest(&m, sizeof(m));
+	syncRequest(&b, sizeof(b));
 }
 
-void	worldInfo()
+void	Client::worldInfo()
 {
-	// TO DO
+	// TODO
 }
 
 void	Client::syncRequest(Message *msg, std::size_t msgSize)
@@ -149,6 +175,15 @@ void		Client::recvHandler(boost::shared_array<int8> buf, const boost::system::er
 
 	queue.push(msg);
 	responseExpect();
+}
+
+template<typename T>
+void	Client::syncResponseCheck(const T& res, MsgType type)
+{
+	if (res.type != static_cast<int8>(type))
+		throw std::runtime_error("Unexpected response receved.");
+	if (res.length != (sizeof(res) - sizeof(res.length)))
+		std::cerr << "warning: invalid packet size." << std::endl;
 }
 
 inline bool	Client::responseLenCheck(int32 len)

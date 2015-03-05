@@ -6,6 +6,7 @@
 # include <boost/shared_array.hpp>
 # include "MessageFactory.hpp"
 # include "TerrariaInfo.hpp"
+# include "Player.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -27,6 +28,7 @@ private:
 	MessageFactory			msgFactory;
 	tcp::socket				socket;
 	std::queue<MessagePtr>	queue;
+	Player					player;
 
 	void	login();
 	void	connection();
@@ -47,4 +49,7 @@ private:
 	inline bool	responseLenCheck(int32 len);
 	inline void	responseTypeCheck(const Message &msg);
 	inline void recvErrCheck(const boost::system::error_code& err);
+
+	template<typename T>
+	void	syncResponseCheck(const T& res, MsgType type);
 };

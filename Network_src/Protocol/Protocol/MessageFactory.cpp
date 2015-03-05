@@ -3,40 +3,6 @@
 #include <string>
 #include "MessageFactory.hpp"
 
-const MessageFactory::CmdRegistry MessageFactory::requestsRegistry =
-{
-	{ MsgType::CONNECT, [](void) -> Message * { return new Connect(); } }
-};
-
-const MessageFactory::CmdRegistry MessageFactory::responsesRegistry =
-{
-	{ MsgType::ACCEPTED, [](void) -> Message * { return new Accepted(); } }
-};
-
-MessagePtr	MessageFactory::create(MsgType msgType, CmdType cmdType)
-{
-	const CmdRegistry&	registry = (cmdType == CmdType::REQUEST) ? requestsRegistry : responsesRegistry;
-	auto it = registry.find(msgType);
-
-	if (it == registry.end())
-	{
-		std::string type = (cmdType == CmdType::REQUEST) ? "request" : "response";
-		throw(std::logic_error("Invalid " + type + " type."));
-	}
-
-	auto* msg = it->second();
-	msg->type = static_cast<byte>(msgType);
-	return MessagePtr(msg);
-}
-
-MessagePtr	MessageFactory::create(const Message& src, CmdType cmdType)
-{
-	auto msg = this->create(static_cast<MsgType>(src.type), cmdType);
-
-	*(msg.get()) = src;
-	return msg;
-}
-
 /*
 **	Makes a new Request with the associated MsgType
 */
@@ -63,3 +29,45 @@ MessagePtr	MessageFactory::makeResponse(const Message& src)
 {
 	return create(src, CmdType::RESPONSE);
 }
+
+MessagePtr	MessageFactory::create(MsgType msgType, CmdType cmdType)
+{
+	const CmdRegistry&	registry = (cmdType == CmdType::REQUEST) ? requestsRegistry : responsesRegistry;
+	auto it = registry.find(msgType);
+
+	if (it == registry.end())
+	{
+		std::string type = (cmdType == CmdType::REQUEST) ? "request" : "response";
+		throw(std::logic_error("Invalid " + type + " type."));
+	}
+
+	auto* msg = it->second();
+	msg->type = static_cast<int8>(msgType);
+	return MessagePtr(msg);
+}
+
+MessagePtr	MessageFactory::create(const Message& src, CmdType cmdType)
+{
+	auto msg = this->create(static_cast<MsgType>(src.type), cmdType);
+
+	*(msg.get()) = src;
+	return msg;
+}
+
+const MessageFactory::CmdRegistry MessageFactory::requestsRegistry =
+{
+	{ MsgType::CONNECT, [](void) -> Message * { return new Connect(); } },
+	{ MsgType::APPEARANCE, [](void) -> Message * { return new Appearance(); } },
+	{ MsgType::PLAYER_LIFE, [](void) -> Message * { return new Life(); } },
+	{ MsgType::PLAYER_MANA, [](void) -> Message * { return new Mana(); } },
+	{ MsgType::PLAYER_BUFFS, [](void) -> Message * { return new Buffs(); } }
+};
+
+const MessageFactory::CmdRegistry MessageFactory::responsesRegistry =
+{
+	{ MsgType::ACCEPTED, [](void) -> Message * { return new Accepted(); } },
+	{ MsgType::APPEARANCE, [](void) -> Message * { return new Appearance(); } },
+	{ MsgType::PLAYER_LIFE, [](void) -> Message * { return new Life(); } },
+	{ MsgType::PLAYER_MANA, [](void) -> Message * { return new Mana(); } },
+	{ MsgType::PLAYER_BUFFS, [](void) -> Message * { return new Buffs(); } }
+};
