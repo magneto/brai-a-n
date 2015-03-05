@@ -7,21 +7,10 @@
 #  include <arpa/inet.h>
 # endif //_WIN32_WINNT
 # include <cstdint>
-# include "MessageTypes.hpp"
+# include "MsgTypes.hpp"
+# include "TerrariaInfo.hpp"
 
-/*
-**	Below are types & constants definitions
-**	for client/server protocol
-*/
-
-typedef std::int8_t		int8;
-typedef std::int16_t	int16;
-typedef std::int32_t	int32;
-typedef std::float_t	single;
-typedef int8			color[3];
-
-#define CLIENT_VERSION	"Terraria37"
-
+# define messageType(t) (static_cast<int8>(MsgType::t))
 
 // packing is now set to one
 # pragma pack(push, 1)
@@ -35,21 +24,8 @@ typedef int8			color[3];
 */
 struct Message
 {
-	struct Header
-	{
-		int32	length;
-		int8	type;
-	}			header;
-
-	void	hostToNet()
-	{
-		header.length = ntohl(header.length);
-	}
-
-	void	netToHost()
-	{
-		header.length = htonl(header.length);
-	}
+	int32	length;
+	int8	type;
 };
 
 
@@ -67,7 +43,7 @@ struct Message
 
 struct Connect : public Message
 {
-	char	version[sizeof(CLIENT_VERSION)];
+	char	version[sizeof(CLIENT_VERSION) - 1];
 };
 
 /*****************************************************************************
@@ -77,6 +53,21 @@ struct Connect : public Message
 struct Accepted : public Message
 {
 	int8	playerSlot;
+};
+
+struct MapInfo : public Message
+{
+	int32	time;
+	int8	dayTime;
+	int8	moonPhase;
+	int8	bloodMoon;
+	int8	eclipse;
+	int32	mapWidth;
+	int32	mapHeight;
+	int32	spawnX;
+	int32	spawnY;
+	int8	misc[61];
+	char	worldName[sizeof(WORLD_NAME) - 1];
 };
 
 // packing is reset to 8

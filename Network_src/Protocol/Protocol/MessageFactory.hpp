@@ -2,24 +2,27 @@
 
 # include <map>
 # include <memory>
-# include "MsgWrapper.hpp"
+# include "Message.hpp"
 
 /*
 **	A Factory for Terria Messages (client <-> server)
 */
+
+typedef std::shared_ptr<Message>	MessagePtr;
+
 class MessageFactory
 {
 public:
-	std::shared_ptr<MsgWrapper>	makeRequest(MessageType);
-	std::shared_ptr<MsgWrapper>	makeRequest(const Message::Header&);
+	MessagePtr	makeRequest(MsgType);
+	MessagePtr	makeRequest(const Message&);
 
-	std::shared_ptr<MsgWrapper>	makeResponse(MessageType);
-	std::shared_ptr<MsgWrapper>	makeResponse(const Message::Header&);
+	MessagePtr	makeResponse(MsgType);
+	MessagePtr	makeResponse(const Message&);
 
 private:
 
-	typedef MsgWrapper* (*MessageCreator)(void);
-	typedef std::map<MessageType, MessageCreator> CmdRegistry;
+	typedef Message* (*MessageCreator)(void);
+	typedef std::map<MsgType, MessageCreator> CmdRegistry;
 
 	enum class CmdType
 	{
@@ -30,6 +33,6 @@ private:
 	static const CmdRegistry requestsRegistry;
 	static const CmdRegistry responsesRegistry;
 
-	std::shared_ptr<MsgWrapper>	create(MessageType, CmdType);
-	std::shared_ptr<MsgWrapper>	create(const Message::Header&, CmdType);
+	MessagePtr	create(MsgType, CmdType);
+	MessagePtr	create(const Message&, CmdType);
 };

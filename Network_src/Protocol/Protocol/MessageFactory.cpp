@@ -5,16 +5,15 @@
 
 const MessageFactory::CmdRegistry MessageFactory::requestsRegistry =
 {
-	{ MessageType::CONNECT, [](void) -> MsgWrapper * { return new ConcreteMsgWrapper<Connect>(); } }
+	{ MsgType::CONNECT, [](void) -> Message * { return new Connect(); } }
 };
 
 const MessageFactory::CmdRegistry MessageFactory::responsesRegistry =
 {
-	{ MessageType::ACCEPTED, [](void) -> MsgWrapper * { return new ConcreteMsgWrapper<Accepted>(); } }
+	{ MsgType::ACCEPTED, [](void) -> Message * { return new Accepted(); } }
 };
 
-
-std::shared_ptr<MsgWrapper>	MessageFactory::create(MessageType msgType, CmdType cmdType)
+MessagePtr	MessageFactory::create(MsgType msgType, CmdType cmdType)
 {
 	const CmdRegistry&	registry = (cmdType == CmdType::REQUEST) ? requestsRegistry : responsesRegistry;
 	auto it = registry.find(msgType);
@@ -25,33 +24,33 @@ std::shared_ptr<MsgWrapper>	MessageFactory::create(MessageType msgType, CmdType 
 		throw(std::logic_error("Invalid " + type + " type."));
 	}
 
-	auto* msgWrap = it->second();
-	msgWrap->genericMsg->header.type = static_cast<byte>(msgType);
-	return std::shared_ptr<MsgWrapper>(msgWrap);
+	auto* msg = it->second();
+	msg->type = static_cast<byte>(msgType);
+	return MessagePtr(msg);
 }
 
-std::shared_ptr<MsgWrapper>	MessageFactory::create(const Message::Header& header, CmdType cmdType)
+MessagePtr	MessageFactory::create(const Message& src, CmdType cmdType)
 {
-	auto msgWrap = this->create(static_cast<MessageType>(header.type), cmdType);
+	auto msg = this->create(static_cast<MsgType>(src.type), cmdType);
 
-	msgWrap->genericMsg->header = header;
-	return msgWrap;
+	*(msg.get()) = src;
+	return msg;
 }
 
 /*
-**	Makes a new Request with the associated MessageType
+**	Makes a new Request with the associated MsgType
 */
-std::shared_ptr<MsgWrapper>	MessageFactory::makeRequest(MessageType msgType)
+MessagePtr	MessageFactory::makeRequest(MsgType msgType)
 {
 	return create(msgType, CmdType::REQUEST);
 }
 
-std::shared_ptr<MsgWrapper>	MessageFactory::makeRequest(const Message::Header& header)
+MessagePtr	MessageFactory::makeRequest(const Message& src)
 {
-	return create(header, CmdType::REQUEST);
+	return create(src, CmdType::REQUEST);
 }
 
-std::shared_ptr<MsgWrapper>	MessageFactory::makeResponse(MessageType msgType)
+MessagePtr	MessageFactory::makeResponse(MsgType msgType)
 {
 	return create(msgType, CmdType::RESPONSE);
 }
@@ -60,7 +59,7 @@ std::shared_ptr<MsgWrapper>	MessageFactory::makeResponse(MessageType msgType)
 **	Makes a new Response with the associated header
 **	Header will be assigned in the new Wrapper
 */
-std::shared_ptr<MsgWrapper>	MessageFactory::makeResponse(const Message::Header& header)
+MessagePtr	MessageFactory::makeResponse(const Message& src)
 {
-	return create(header, CmdType::RESPONSE);
+	return create(src, CmdType::RESPONSE);
 }

@@ -7,3 +7,5 @@
 *.sln
 *.nfo
 build
+Network_src/Protocol/Debug/*
+Network_src/Protocol/Protocol/Debug/*

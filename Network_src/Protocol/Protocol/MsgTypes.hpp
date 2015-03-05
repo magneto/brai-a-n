@@ -2,7 +2,7 @@
 
 # include <cstdint>
 
-enum class MessageType : std::int8_t
+enum class MsgType : std::int8_t
 {
 	CONNECT = 0x01,
 	FATAL_ERR,

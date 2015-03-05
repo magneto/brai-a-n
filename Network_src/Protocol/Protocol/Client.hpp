@@ -1,37 +1,50 @@
 #pragma once
 
-# include "boost/asio.hpp"
+# include <queue>
+# include <utility>
+# include <boost/asio.hpp>
+# include <boost/shared_array.hpp>
 # include "MessageFactory.hpp"
-# define DFL_HOST		"127.0.0.1"
-# define DFL_PORT		7777
-
+# include "TerrariaInfo.hpp"
 
 using boost::asio::ip::tcp;
-using boost::asio::ip::udp;
 
 class Client
 {
 public:
 	Client(const char* host = DFL_HOST, short port = DFL_PORT);
 	~Client();
-
-	bool	connection();
+	Client(const Client&) = delete;
+	Client&	operator=(const Client&) = delete;
 
 	void	run();
 	void	stop();
 
-	struct Player
-	{
-		int8	slot;
-
-	}			player;
+	std::queue<MessagePtr>	getQueue();
 
 private:
 	boost::asio::io_service	io_service;
 	MessageFactory			msgFactory;
-	udp::socket				socket;
-	udp::endpoint			serverEp;
+	tcp::socket				socket;
+	std::queue<MessagePtr>	queue;
 
-	void	request(std::shared_ptr<MsgWrapper> msgWrapper);
-	void	response(std::shared_ptr<MsgWrapper> msgWrapper);
+	void	login();
+	void	connection();
+	void	playerConfiguration();
+	void	worldInfo();
+
+	void	syncRequest(Message *msg, std::size_t msgSize);
+	void	syncResponse(Message *msg, std::size_t msgSize);
+
+
+	void	request(MessagePtr msg, std::size_t);
+	void	sendHandler(MessagePtr msg, const boost::system::error_code& err);
+
+	void	responseExpect();
+	void	response(std::shared_ptr<int32> length, const boost::system::error_code& err);
+	void	recvHandler(boost::shared_array<int8> buf, const boost::system::error_code& err);
+
+	inline bool	responseLenCheck(int32 len);
+	inline void	responseTypeCheck(const Message &msg);
+	inline void recvErrCheck(const boost::system::error_code& err);
 };
