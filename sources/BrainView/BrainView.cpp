@@ -142,7 +142,7 @@ void BrainView::NodesCreate(System::Object ^sender, RoutedEventArgs ^e)
 {
 	MenuItem ^i = (MenuItem ^)sender;
 
-	CodeNode ^n = gcnew CodeNode("int a;", consoleDebug_);
+	CodeNode ^n = gcnew CodeNode(consoleDebug_);
 	gcnew NodeWidget(this, 42 + this->scroll_->ContentHorizontalOffset, 42 + this->scroll_->ContentVerticalOffset, n->getName(), n);
 }
 

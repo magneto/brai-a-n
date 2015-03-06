@@ -10,7 +10,22 @@
 using namespace System;
 using namespace OnTheFly;
 
+String	^CodeNode::generateTemplateCode(LanguageSel lang) {
+	StringBuilder	^builder = gcnew StringBuilder();
 
+	builder->Append("using System;\n");
+	builder->Append("using System.Collections.Generic;\n\n");
+	builder->Append("[MainEntry]\n");
+	builder->Append(String::Format("class {0}\n", name_ + "Class"));
+	builder->Append("{\n");
+	builder->Append("[MainEntry]\n");
+	builder->Append(String::Format("public void {0}(Dictionary<String, ANode> children, Object o)\n", name_ + "Func"));
+	builder->Append("{\n");
+	builder->Append("// Code Goes here, see documentation to know how it works\n");
+	builder->Append("}\n");
+	builder->Append("};\n");
+	return builder->ToString();
+}
 
 CodeNode::CodeNode(String ^code, TextBlock^ console) :
 	ANode(),
@@ -21,13 +36,18 @@ CodeNode::CodeNode(String ^code, TextBlock^ console) :
 	console_(console) {
 }
 
+CodeNode::CodeNode(TextBlock ^console) :
+CodeNode("", console) {
+	code_ = generateTemplateCode(LanguageSel::CSHARP);
+}
+
+
 void CodeNode::Build() {
 	CompilerResults ^newRes = nullptr;
 
 	newRes = CompilerAttr::provider[(int)language_]->CompileAssemblyFromSource(CompilerAttr::compilerParams, code_);
 	if (newRes->Errors->Count != 0) {
 		console_->Text += String::Format("ERROR: [0x04]: Cannot build due to source build fail on node \"{0}\".\n", name_);
-		//console_->Text += String::Format("ERROR: [0x04]: Cannot build due to source build fail on node \"{0}\".", name_);
 		for each (CompilerError ^ce in newRes->Errors) {
 			console_->Text += String::Format("\t" + ce->ToString() + "\n");
 		}
@@ -48,13 +68,13 @@ void CodeNode::Build() {
 		console_->Text += String::Format("ERROR: [0x00]: Cannot build because there’s no EntryClass. (Must set [MainEntry] on a class.)\n");
 		return ;
 	}
-	instance_ = newRes->CompiledAssembly->CreateInstance(entryClass->FullName);
 	entryPoint_ = nullptr;
 	for each (MethodInfo ^i in entryClass->GetMethods()) {
 		if (entryPoint_ && i->GetCustomAttributes(MainEntry::typeid, false)->Length > 0) {
 			console_->Text += String::Format("ERROR: [0x03]: Cannot build because there are too many EntryMethod in node \"{0}\".\n", name_);
 			return ;
 		}
+		Console::WriteLine(i->Name);
 		if (i->GetCustomAttributes(MainEntry::typeid, false)->Length > 0) {
 			entryPoint_ = i;
 		}
@@ -63,6 +83,7 @@ void CodeNode::Build() {
 		console_->Text += String::Format("ERROR: [0x01]: Cannot build because there’s no EntryMethod. (Must set [MainEntry] on a method of the class tagged [MainEntry]\"{0}\".)\n", name_);
 		return ;
 	}
+	instance_ = newRes->CompiledAssembly->CreateInstance(entryClass->FullName);
 	res_ = newRes;
 }
 
