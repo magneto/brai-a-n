@@ -25,28 +25,28 @@ namespace OnTheFly {
 
 	public:
 		static CompilerAttr() {
-			array<String ^> ^languages = gcnew array < String ^ > {
+			array<String ^> ^languages = gcnew array <String ^> {
 				"CSharp",
 				"JScript",
 				"VisualBasic"
 			};
 
 			providerOptions->Add("CompilerVersion", "v4.0");
-			StringBuilder ^s = (gcnew StringBuilder())->Append("OnTheFly")->Append("42.dll");
 			compilerParams->GenerateInMemory = true;
 			compilerParams->GenerateExecutable = false;
-			//compilerParams->OutputAssembly = s->ToString();
+
+			// Add references to nodes
 			compilerParams->ReferencedAssemblies->Add("System.dll");
-			//compilerParams->ReferencedAssemblies->Add("System.ComponentModel.Composition.dll");
 			compilerParams->ReferencedAssemblies->Add((gcnew System::Uri(Assembly::GetExecutingAssembly()->CodeBase))->AbsolutePath);
+
 			provider = gcnew array < CodeDomProvider ^ > {
 				CodeDomProvider::CreateProvider(languages[0], providerOptions),
 				CodeDomProvider::CreateProvider(languages[1]),
 				CodeDomProvider::CreateProvider(languages[2], providerOptions)
 			};
 		}
-		static array<CodeDomProvider ^>	^provider;
-		static CompilerParameters ^compilerParams = gcnew CompilerParameters();
+		static array<CodeDomProvider ^>		^provider;
+		static CompilerParameters			^compilerParams = gcnew CompilerParameters();
 		static Dictionary<String^, String^> ^providerOptions = gcnew Dictionary<String^, String^>();
 	};
 }

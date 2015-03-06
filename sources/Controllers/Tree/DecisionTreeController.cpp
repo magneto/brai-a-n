@@ -1,6 +1,6 @@
 /*
 ** Author: Sebastien Maire
-** Contribs:Emmanuel Isidore
+** Contribs: Emmanuel Isidore
 */
 
 #include "DecisionTreeController.hpp"
@@ -25,3 +25,10 @@ Dictionary<String ^, Type^>^DecisionTreeController::getNodesTypes()
 void DecisionTreeController::setNodePos(ANode^ Node, UInt32 X, UInt32 Y)
 {Node->setPosition(X, Y);}
 
+void DecisionTreeController::Save(String ^path) {
+
+}
+
+void DecisionTreeController::Load(String ^path) {
+
+}

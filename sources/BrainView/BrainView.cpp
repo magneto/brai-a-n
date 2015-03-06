@@ -1,3 +1,8 @@
+/*
+** Author: Stephane Nguyen
+** Contribs: Sebastien Maire
+*/
+
 #include "NodeWidget.h"
 
 #include "BrainView.h"
@@ -105,7 +110,7 @@ Canvas ^BrainView::getCanvas() {
 	return canvas_;
 }
 
-Void BrainView::OnMouseClickWheelDown(Object^ sender, MouseButtonEventArgs^ e)
+void BrainView::OnMouseClickWheelDown(Object^ sender, MouseButtonEventArgs^ e)
 {
 	if (e->ChangedButton == MouseButton::Middle)
 	{
@@ -116,7 +121,7 @@ Void BrainView::OnMouseClickWheelDown(Object^ sender, MouseButtonEventArgs^ e)
 	}
 }
 
-Void BrainView::OnMouseClickWheelUp(Object^ sender, MouseButtonEventArgs^ e)
+void BrainView::OnMouseClickWheelUp(Object^ sender, MouseButtonEventArgs^ e)
 {
 	if (e->ChangedButton == MouseButton::Middle)
 		this->moveWheel_ = false;
@@ -202,7 +207,3 @@ void BrainView::WinSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
 	consoleGrid_->Width = this->ActualWidth - 15;
 }
 
-void	BrainView::UpdateLinks() {
-	// loop over the nodes
-	// redrawlines
-}

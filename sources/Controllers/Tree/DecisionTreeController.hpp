@@ -26,4 +26,6 @@ public:
 	List<ANode^> ^getNodesList();
 	Dictionary<String ^, Type^>^getNodesTypes();
 	void setNodePos(ANode^ node, UInt32 x, UInt32 y);
+	void	Save(String ^path);
+	void	Load(String ^path);
 };
