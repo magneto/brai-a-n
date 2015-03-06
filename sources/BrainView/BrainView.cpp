@@ -43,6 +43,7 @@ consoleGrid_(gcnew Grid()) {
 	//consoleDebug_->Height = 500;
 	consoleDebug_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 100, 100, 100));
 	consoleDebug_->Foreground = gcnew SolidColorBrush(Colors::White);
+	consoleDebug_->TextWrapping = TextWrapping::WrapWithOverflow;
 	ScrollViewer^ scrollConsole = gcnew ScrollViewer();
 	scrollConsole->VerticalScrollBarVisibility = ScrollBarVisibility::Visible;
 	scrollConsole->CanContentScroll = true;
