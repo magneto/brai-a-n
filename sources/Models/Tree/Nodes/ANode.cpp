@@ -17,6 +17,10 @@ void	ANode::setPosition(UInt32 x, UInt32 y) {
 	posX_ = x;
 	posY_ = y;
 }
+
+Tuple<UInt32, UInt32>	^ANode::getPosition() {
+	return gcnew Tuple<UInt32, UInt32>(posX_, posY_);
+}
 String ^ANode::getName() { return name_; }
 Dictionary<String ^, ANode ^>	^ANode::getChildren() { return children_; }
 

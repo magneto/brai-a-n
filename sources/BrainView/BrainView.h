@@ -13,6 +13,7 @@ ref class NodeWidget;
 
 ref class BrainView : Window
 {
+	void	createNodesMenu_();
 public:
 	enum class Mode {
 		MOVE = 0,
@@ -48,4 +49,5 @@ public:
 	void OnMouseClickSave(Object ^sender, RoutedEventArgs^ e);
 	void OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e);
 	void WinSizeChanged(Object^ sender, SizeChangedEventArgs^ e);
+	void	DrawCanvas();
 };

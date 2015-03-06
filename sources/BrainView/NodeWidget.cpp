@@ -217,7 +217,8 @@ void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseB
 				l->X2 = childOffset.X + this->posX_;
 				l->Y2 = childOffset.Y + this->posY_;
 
-				node_->AddChild(win->selected_->node_);
+				//node_->AddChild(win->selected_->node_);
+				this->win->treeController_->addChild(this->node_, win->selected_->node_);
 
 				this->parents_[win->selected_->node_->getName()] =  gcnew Tuple<NodeWidget ^, Line ^>(win->selected_, l);
 				win->selected_->children_[node_->getName()] =  gcnew Tuple<NodeWidget ^, Line ^>(this, l);

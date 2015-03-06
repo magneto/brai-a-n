@@ -6,9 +6,12 @@
 #pragma once
 
 #using <System.dll>
+#include "BrainView\include.h"
+
 
 using namespace System;
 using namespace System::Collections::Generic;
+using namespace System::Windows::Controls;
 
 ref class Counter {
 public:
@@ -43,6 +46,7 @@ public:
 	ANode();
 // Getters, setters
 	void			setPosition(UInt32 x, UInt32 y);
+	Tuple<UInt32, UInt32>			^getPosition();
 	String	^getName();
 	Dictionary<String ^, ANode ^>	^getChildren();
 

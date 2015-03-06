@@ -11,18 +11,19 @@
 #include "Models\Tree\DecisionTree.hpp"
 #using <System.Xml.dll>
 using namespace System::Xml::Serialization;
+using namespace System::Runtime::Serialization::Formatters::Binary;
+
 
 using namespace System;
 using namespace System::IO;
-using namespace System::Runtime::Serialization::Formatters::Soap;
 
 public ref class Serializer
 {
 private:
-	XmlSerializer^ formater_;
+	BinaryFormatter^ formater_;
 
 public:
 	Serializer();
-	void Serialize(String^ , DecisionTree^ );
+	void Serialize(String^ , DecisionTree^% );
 	DecisionTree^ Unserialize(String^ const);
 };

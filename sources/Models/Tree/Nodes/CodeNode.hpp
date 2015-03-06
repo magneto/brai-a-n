@@ -18,6 +18,7 @@ public:
 	Object ^instance_;
 	MethodInfo ^entryPoint_;
 	bool	rebuild_;
+	[NonSerializedAttribute]
 	TextBlock^ console_;
 public:
 	enum class LanguageSel {

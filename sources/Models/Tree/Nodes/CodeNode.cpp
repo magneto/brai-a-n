@@ -41,7 +41,6 @@ CodeNode("", console) {
 	code_ = generateTemplateCode(LanguageSel::CSHARP);
 }
 
-
 void CodeNode::Build() {
 	CompilerResults ^newRes = nullptr;
 

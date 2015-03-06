@@ -12,6 +12,15 @@
 using namespace System::Windows::Media::Imaging;
 using namespace Microsoft::Win32;
 
+void	BrainView::createNodesMenu_() {
+	for each (KeyValuePair<String ^, NodeCreationRoutine ^> ^p in treeController_->getNodesTypes()) {
+		MenuItem^ item = gcnew MenuItem();
+		item->Header = "Create " + p->Key;
+		this->Tag = p->Value;
+		item->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::NodesCreate);
+		addNodeMenu_->Items->Add(item);
+	}
+}
 
 BrainView::BrainView(void) :
 canvas_(gcnew Canvas()),
@@ -28,10 +37,7 @@ treeController_(gcnew DecisionTreeController()) {
 	this->Height = 800;
 	this->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x20, 0x20, 0x20));
 
-	MenuItem^ itemCreateNode = gcnew MenuItem();
-	itemCreateNode->Header = "Create Node";
-	itemCreateNode->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::NodesCreate);
-	addNodeMenu_->Items->Add(itemCreateNode);
+	createNodesMenu_();
 	this->scroll_->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
 
 	this->scroll_->MouseUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelUp);
@@ -101,7 +107,7 @@ treeController_(gcnew DecisionTreeController()) {
 	fileItem->Items->Add(itemLoad);
 	itemSave->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickSave);
 	itemLoad->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickLoad);
-	
+
 
 	this->Content = dpWin_;
 	this->SizeChanged += gcnew System::Windows::SizeChangedEventHandler(this, &BrainView::WinSizeChanged);
@@ -148,8 +154,10 @@ void BrainView::RightClick(Object^ sender, MouseButtonEventArgs^ e)
 void BrainView::NodesCreate(System::Object ^sender, RoutedEventArgs ^e)
 {
 	MenuItem ^i = (MenuItem ^)sender;
+	NodeCreationRoutine ^nodeCreate = (NodeCreationRoutine ^)this->Tag; // to instantiate the right node
 
-	CodeNode ^n = gcnew CodeNode(consoleDebug_);
+	CodeNode ^n = (CodeNode ^)nodeCreate->Invoke(this->consoleDebug_);
+	//CodeNode ^n = gcnew CodeNode(consoleDebug_);
 	gcnew NodeWidget(this, 42 + this->scroll_->ContentHorizontalOffset, 42 + this->scroll_->ContentVerticalOffset, n->getName(), n);
 }
 
@@ -162,10 +170,10 @@ void BrainView::OnMouseClickWin(Object^ sender, MouseButtonEventArgs^ e)
 			Canvas::SetTop(selected_->rootWidget_, e->GetPosition(canvas_).Y);
 			Canvas::SetLeft(selected_->rootWidget_, e->GetPosition(canvas_).X);
 			selected_->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
-			selected_ = nullptr;
+			treeController_->setNodePos(selected_->node_, selected_->posX_, selected_->posY_);
 		}
-		else if (mode_ == BrainView::Mode::LINK_NODE) {
-		}
+		selected_ = nullptr;
+		mode_ = BrainView::Mode::NONE;
 	}
 }
 
@@ -180,12 +188,22 @@ void BrainView::OnMouseClickSave(Object^ sender, RoutedEventArgs^ e)
 		treeController_->Save(dialogSave->FileName);
 		/*if ((stream = dialogSave->OpenFile()) != nullptr)
 		{
-			Console::WriteLine(dialogSave->FileName);
-			stream->Close();
+		Console::WriteLine(dialogSave->FileName);
+		stream->Close();
 		}*/
 	}
 }
 
+void	BrainView::DrawCanvas() {
+	for each (ANode ^w in treeController_->getNodesList()) {
+		Console::WriteLine(w->getName());
+		Tuple<UInt32, UInt32>	^pos = w->getPosition();
+		gcnew NodeWidget(this, pos->Item1, pos->Item2, w->getName(), (CodeNode ^)w);
+		for each (KeyValuePair<String ^, ANode ^> ^c in w->getChildren()) {
+
+		}
+	}
+}
 
 void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)
 {
@@ -196,6 +214,8 @@ void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)
 	if (dialogOpen->ShowDialog().Value)
 	{
 		treeController_->Load(dialogOpen->FileName);
+		this->canvas_->Children->Clear();
+		DrawCanvas();
 		//if ((stream = dialogOpen->OpenFile()) != nullptr)
 		//{
 		//	Console::WriteLine(dialogOpen->FileName);

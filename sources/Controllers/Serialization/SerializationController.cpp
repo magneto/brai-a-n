@@ -6,10 +6,10 @@
 #include "SerializationController.hpp"
 
 Serializer::Serializer()
-{formater_ = gcnew XmlSerializer(DecisionTree::typeid);}
+{formater_ = gcnew BinaryFormatter();}
 
 
-	void Serializer::Serialize(String^ filename, DecisionTree^ obj)
+	void Serializer::Serialize(String^ filename, DecisionTree^% obj)
 	{
 		Stream^ fileStream = File::Open(filename, FileMode::Create);
 		formater_->Serialize(fileStream, obj);
