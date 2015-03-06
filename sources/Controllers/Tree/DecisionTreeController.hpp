@@ -15,7 +15,9 @@ using namespace System;
 using namespace System::Collections::Generic;
 
 public ref class DecisionTreeController {
-	DecisionTreeController(DecisionTree ^tree);
+public:
+	DecisionTreeController();
+	void	CheckTree();
 	
 private:
 	DecisionTree ^tree_;

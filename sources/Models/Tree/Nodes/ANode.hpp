@@ -31,6 +31,7 @@ public:
 	}
 };
 
+[SerializableAttribute]
 public ref class ANode abstract {
 protected:
 	Dictionary<String^, ANode^>	^children_;

@@ -3,32 +3,54 @@
 ** Contribs: Emmanuel Isidore
 */
 
+#include "Controllers\Serialization\SerializationController.hpp"
 #include "DecisionTreeController.hpp"
 
-DecisionTreeController::DecisionTreeController(DecisionTree ^tree) :
-tree_(tree)
+DecisionTreeController::DecisionTreeController() :
+tree_(gcnew DecisionTree())
 {}
-Dictionary<String^, ANode^> ^DecisionTreeController::getChildren(ANode^ Node)
-{return Node->getChildren();}
+
+void	DecisionTreeController::CheckTree() {
+	if (!tree_)
+		throw gcnew Exception("You must load a tree before you can do that.");
+}
+
+Dictionary<String^, ANode^> ^DecisionTreeController::getChildren(ANode^ Node) {
+	CheckTree();
+	return Node->getChildren();
+}
 
 void DecisionTreeController::addChild(ANode^ node, ANode ^child) {
+	CheckTree();
 	node->AddChild(child);
 	tree_->RegisterNode(node);
 }
 
-List<ANode^> ^DecisionTreeController::getNodesList()
-{return nullptr;}
+List<ANode^> ^DecisionTreeController::getNodesList() {
+	CheckTree();
+	return nullptr;
+}
 
-Dictionary<String ^, Type^>^DecisionTreeController::getNodesTypes()
-{return nullptr;}
+Dictionary<String ^, Type^>^DecisionTreeController::getNodesTypes() {
+	CheckTree();
+	return nullptr;
+}
 
-void DecisionTreeController::setNodePos(ANode^ Node, UInt32 X, UInt32 Y)
-{Node->setPosition(X, Y);}
+void DecisionTreeController::setNodePos(ANode^ node, UInt32 x, UInt32 y) {
+	CheckTree();
+	node->setPosition(x, y);
+}
 
 void DecisionTreeController::Save(String ^path) {
+	Serializer	^ser = gcnew Serializer();
 
+	ser->Serialize(path, tree_);
 }
 
 void DecisionTreeController::Load(String ^path) {
-
+	Serializer	^ser = gcnew Serializer();
+	if (tree_) {
+		throw gcnew Exception("Do you want to save before load another brain ?");
+	}
+	tree_ = ser->Unserialize(path);
 }

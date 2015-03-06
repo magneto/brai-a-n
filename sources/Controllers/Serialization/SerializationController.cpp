@@ -6,7 +6,7 @@
 #include "SerializationController.hpp"
 
 Serializer::Serializer()
-{formater_ = gcnew SoapFormatter;}
+{formater_ = gcnew XmlSerializer(DecisionTree::typeid);}
 
 
 	void Serializer::Serialize(String^ filename, DecisionTree^ obj)

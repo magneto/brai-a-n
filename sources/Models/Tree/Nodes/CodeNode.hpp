@@ -9,6 +9,7 @@
 #include "Controllers\OnTheFly\CompilerAttr.hpp"
 #include "BrainView\include.h"
 
+[SerializableAttribute]
 public ref class CodeNode : public ANode {
 protected:
 public:

@@ -3,11 +3,12 @@
 ** Contribs: Sebastien Maire
 */
 
-#include "NodeWidget.h"
+#using <System.Windows.Forms.dll>
 
+#include "NodeWidget.h"
 #include "BrainView.h"
 #include "Models\Tree\Nodes\CodeNode.hpp"
-#using <System.Windows.Forms.dll>
+
 using namespace System::Windows::Media::Imaging;
 using namespace Microsoft::Win32;
 
@@ -20,7 +21,8 @@ dpWin_(gcnew DockPanel()),
 addNodeMenu_(gcnew System::Windows::Controls::ContextMenu()),
 consoleDebug_(gcnew TextBlock()),
 consoleDebugTitle_(gcnew TextBlock()),
-consoleGrid_(gcnew Grid()) {
+consoleGrid_(gcnew Grid()),
+treeController_(gcnew DecisionTreeController()) {
 	this->Title = "PFA";
 	this->Width = 1200;
 	this->Height = 800;
@@ -172,14 +174,15 @@ void BrainView::OnMouseClickSave(Object^ sender, RoutedEventArgs^ e)
 	SaveFileDialog^ dialogSave = gcnew SaveFileDialog();
 	Stream^ stream;
 
-	dialogSave->Filter = "Images (*.jgp, *.png) | *.jpg; *.png";
+	dialogSave->Filter = "BrainFiles (*.xml) | *.xml";
 	if (dialogSave->ShowDialog().Value)
 	{
-		if ((stream = dialogSave->OpenFile()) != nullptr)
+		treeController_->Save(dialogSave->FileName);
+		/*if ((stream = dialogSave->OpenFile()) != nullptr)
 		{
 			Console::WriteLine(dialogSave->FileName);
 			stream->Close();
-		}
+		}*/
 	}
 }
 
@@ -189,14 +192,15 @@ void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)
 	OpenFileDialog^ dialogOpen = gcnew OpenFileDialog();
 	Stream^ stream;
 
-	dialogOpen->Filter = "Images (*.jgp, *.png) | *.jpg; *.png";
+	dialogOpen->Filter = "BrainFiles (*.xml) | *.xml";
 	if (dialogOpen->ShowDialog().Value)
 	{
-		if ((stream = dialogOpen->OpenFile()) != nullptr)
-		{
-			Console::WriteLine(dialogOpen->FileName);
-			stream->Close();
-		}
+		treeController_->Load(dialogOpen->FileName);
+		//if ((stream = dialogOpen->OpenFile()) != nullptr)
+		//{
+		//	Console::WriteLine(dialogOpen->FileName);
+		//	stream->Close();
+		//}
 	}
 }
 

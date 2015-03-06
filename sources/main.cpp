@@ -22,6 +22,7 @@ protected:
 		Application::OnStartup(e);
 		BrainView^ win = gcnew BrainView();
 		win->Show();
+		// System::Threading::Thread ^t = gcnew System::Threading::Thread(BrainView::RunTree);
 	}
 };
 
