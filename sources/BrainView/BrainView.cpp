@@ -5,8 +5,8 @@
 
 #using <System.Windows.Forms.dll>
 
-#include "NodeWidget.h"
-#include "BrainView.h"
+#include "NodeWidget.hpp"
+#include "BrainView.hpp"
 #include "Models\Tree\Nodes\CodeNode.hpp"
 
 using namespace System::Windows::Media::Imaging;

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "include.h"
-#include "BrainView.h"
+#include "BrainView.hpp"
 
 using namespace System::Collections::Generic;
 

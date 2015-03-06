@@ -5,7 +5,7 @@
 
 #using "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\PresentationFramework.dll"
 
-#include "BrainView\BrainView.h"
+#include "BrainView\BrainView.hpp"
 
 using namespace System;
 using namespace System::Windows;

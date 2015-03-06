@@ -1,4 +1,4 @@
-#include "NodeWidget.h"
+#include "NodeWidget.hpp"
 #include "Models\Tree\Nodes\CodeNode.hpp"
 
 using namespace System::Windows::Media::Imaging;
