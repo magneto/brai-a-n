@@ -31,13 +31,16 @@ CodeNode::CodeNode(String ^code, TextBlock^ console) :
 	ANode(),
 	code_(code),
 	res_(nullptr),
-	rebuild_(true),
 	language_(LanguageSel::CSHARP),
 	console_(console) {
 }
 
 CodeNode::CodeNode(TextBlock ^console) :
-CodeNode("", console) {
+	ANode(),
+	code_(""),
+	res_(nullptr),
+	language_(LanguageSel::CSHARP),
+	console_(console) {
 	code_ = generateTemplateCode(LanguageSel::CSHARP);
 }
 
