@@ -23,95 +23,95 @@ void	BrainView::createNodesMenu_() {
 }
 
 BrainView::BrainView(void) :
-canvas_(gcnew Canvas()),
-scroll_(gcnew ScrollViewer()),
-fileMenu_(gcnew Menu()),
-dpWin_(gcnew DockPanel()),
-addNodeMenu_(gcnew System::Windows::Controls::ContextMenu()),
-consoleDebug_(gcnew TextBlock()),
-consoleDebugTitle_(gcnew TextBlock()),
-consoleGrid_(gcnew Grid()),
-treeController_(gcnew DecisionTreeController()) {
-	this->Title = "PFA";
-	this->Width = 1200;
-	this->Height = 800;
-	this->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x20, 0x20, 0x20));
+	canvas_(gcnew Canvas()),
+	scroll_(gcnew ScrollViewer()),
+	fileMenu_(gcnew Menu()),
+	dpWin_(gcnew DockPanel()),
+	addNodeMenu_(gcnew System::Windows::Controls::ContextMenu()),
+	consoleDebug_(gcnew TextBlock()),
+	consoleDebugTitle_(gcnew TextBlock()),
+	consoleGrid_(gcnew Grid()),
+	treeController_(gcnew DecisionTreeController()) {
+		this->Title = "PFA";
+		this->Width = 1200;
+		this->Height = 800;
+		this->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x20, 0x20, 0x20));
 
-	createNodesMenu_();
-	this->scroll_->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
+		createNodesMenu_();
+		this->scroll_->MouseRightButtonUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::RightClick);
 
-	this->scroll_->MouseUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelUp);
-	this->scroll_->MouseDown += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelDown);
-	this->scroll_->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &BrainView::OnMouseMove);
-	this->canvas_->Width = 10000;
-	this->canvas_->Height = 10000;
-	this->scroll_->HorizontalScrollBarVisibility = ScrollBarVisibility::Hidden;
-	this->scroll_->VerticalScrollBarVisibility = ScrollBarVisibility::Hidden;
-	this->scroll_->Content = this->canvas_;
+		this->scroll_->MouseUp += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelUp);
+		this->scroll_->MouseDown += gcnew System::Windows::Input::MouseButtonEventHandler(this, &BrainView::OnMouseClickWheelDown);
+		this->scroll_->MouseMove += gcnew System::Windows::Input::MouseEventHandler(this, &BrainView::OnMouseMove);
+		this->canvas_->Width = 10000;
+		this->canvas_->Height = 10000;
+		this->scroll_->HorizontalScrollBarVisibility = ScrollBarVisibility::Hidden;
+		this->scroll_->VerticalScrollBarVisibility = ScrollBarVisibility::Hidden;
+		this->scroll_->Content = this->canvas_;
 
-	consoleDebugTitle_->Height = 25;
-	consoleDebugTitle_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0xFF, 0x9F, 0x3F));
-	consoleDebugTitle_->Text = "\tDebug Console";
-	consoleDebugTitle_->Foreground = gcnew SolidColorBrush(Colors::White);
-	//consoleDebug_->Height = 500;
-	consoleDebug_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 100, 100, 100));
-	consoleDebug_->Foreground = gcnew SolidColorBrush(Colors::White);
-	consoleDebug_->TextWrapping = TextWrapping::WrapWithOverflow;
-	ScrollViewer^ scrollConsole = gcnew ScrollViewer();
-	scrollConsole->VerticalScrollBarVisibility = ScrollBarVisibility::Visible;
-	scrollConsole->CanContentScroll = true;
-	scrollConsole->Content = consoleDebug_;
-	scrollConsole->ScrollToBottom();
-	RowDefinition ^r = gcnew RowDefinition();
-	r->Height = GridLength(25);
-	RowDefinition ^r2 = gcnew RowDefinition();
-	r2->Height = GridLength(180);
-	consoleGrid_->RowDefinitions->Add(r);
-	consoleGrid_->RowDefinitions->Add(r2);
-	consoleGrid_->SetRow(consoleDebugTitle_, 0);
-	consoleGrid_->SetRow(scrollConsole, 1);
-	consoleGrid_->Height = 200;
+		consoleDebugTitle_->Height = 25;
+		consoleDebugTitle_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0xFF, 0x9F, 0x3F));
+		consoleDebugTitle_->Text = "\tDebug Console";
+		consoleDebugTitle_->Foreground = gcnew SolidColorBrush(Colors::White);
+		//consoleDebug_->Height = 500;
+		consoleDebug_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 100, 100, 100));
+		consoleDebug_->Foreground = gcnew SolidColorBrush(Colors::White);
+		consoleDebug_->TextWrapping = TextWrapping::WrapWithOverflow;
+		ScrollViewer^ scrollConsole = gcnew ScrollViewer();
+		scrollConsole->VerticalScrollBarVisibility = ScrollBarVisibility::Visible;
+		scrollConsole->CanContentScroll = true;
+		scrollConsole->Content = consoleDebug_;
+		scrollConsole->ScrollToBottom();
+		RowDefinition ^r = gcnew RowDefinition();
+		r->Height = GridLength(25);
+		RowDefinition ^r2 = gcnew RowDefinition();
+		r2->Height = GridLength(180);
+		consoleGrid_->RowDefinitions->Add(r);
+		consoleGrid_->RowDefinitions->Add(r2);
+		consoleGrid_->SetRow(consoleDebugTitle_, 0);
+		consoleGrid_->SetRow(scrollConsole, 1);
+		consoleGrid_->Height = 200;
 
-	consoleGrid_->Children->Add(scrollConsole);
-	consoleGrid_->Children->Add(consoleDebugTitle_);
+		consoleGrid_->Children->Add(scrollConsole);
+		consoleGrid_->Children->Add(consoleDebugTitle_);
 
-	dpWin_->SetDock(fileMenu_, Dock::Top);
-	dpWin_->SetDock(consoleGrid_, Dock::Bottom);
-	dpWin_->SetDock(scroll_, Dock::Bottom);
+		dpWin_->SetDock(fileMenu_, Dock::Top);
+		dpWin_->SetDock(consoleGrid_, Dock::Bottom);
+		dpWin_->SetDock(scroll_, Dock::Bottom);
 
-	dpWin_->Children->Add(fileMenu_);
-	dpWin_->Children->Add(consoleGrid_);
-	dpWin_->Children->Add(scroll_);
-	fileMenu_->IsMainMenu = true;
-	MenuItem^ fileItem = gcnew MenuItem();
-	fileItem->Header = "_File";
-	fileMenu_->Items->Add(fileItem);
-	MenuItem^ itemSave = gcnew MenuItem();
-	itemSave->Header = "_Save";
-	ImageSource ^imgSourceSave = gcnew BitmapImage(gcnew Uri(".\\save.jpg", UriKind::Relative));
-	Image^ imgSave = gcnew Image();
-	imgSave->Source = imgSourceSave;
-	imgSave->Width = 20;
-	imgSave->Height = 20;
-	itemSave->Icon = imgSave;
-	MenuItem^ itemLoad = gcnew MenuItem();
-	itemLoad->Header = "_Load";
-	BitmapImage ^btmLoad;
-	ImageSource ^imgSourceLoad = gcnew BitmapImage(gcnew Uri(".\\save.jpg", UriKind::Relative));
-	Image^ imgLoad = gcnew Image();
-	imgLoad->Source = imgSourceLoad;
-	imgLoad->Width = 20;
-	imgLoad->Height = 20;
-	itemLoad->Icon = imgLoad;
-	fileItem->Items->Add(itemSave);
-	fileItem->Items->Add(itemLoad);
-	itemSave->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickSave);
-	itemLoad->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickLoad);
+		dpWin_->Children->Add(fileMenu_);
+		dpWin_->Children->Add(consoleGrid_);
+		dpWin_->Children->Add(scroll_);
+		fileMenu_->IsMainMenu = true;
+		MenuItem^ fileItem = gcnew MenuItem();
+		fileItem->Header = "_File";
+		fileMenu_->Items->Add(fileItem);
+		MenuItem^ itemSave = gcnew MenuItem();
+		itemSave->Header = "_Save";
+		ImageSource ^imgSourceSave = gcnew BitmapImage(gcnew Uri(".\\save.jpg", UriKind::Relative));
+		Image^ imgSave = gcnew Image();
+		imgSave->Source = imgSourceSave;
+		imgSave->Width = 20;
+		imgSave->Height = 20;
+		itemSave->Icon = imgSave;
+		MenuItem^ itemLoad = gcnew MenuItem();
+		itemLoad->Header = "_Load";
+		BitmapImage ^btmLoad;
+		ImageSource ^imgSourceLoad = gcnew BitmapImage(gcnew Uri(".\\save.jpg", UriKind::Relative));
+		Image^ imgLoad = gcnew Image();
+		imgLoad->Source = imgSourceLoad;
+		imgLoad->Width = 20;
+		imgLoad->Height = 20;
+		itemLoad->Icon = imgLoad;
+		fileItem->Items->Add(itemSave);
+		fileItem->Items->Add(itemLoad);
+		itemSave->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickSave);
+		itemLoad->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::OnMouseClickLoad);
 
 
-	this->Content = dpWin_;
-	this->SizeChanged += gcnew System::Windows::SizeChangedEventHandler(this, &BrainView::WinSizeChanged);
-	NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;", consoleDebug_));
+		this->Content = dpWin_;
+		this->SizeChanged += gcnew System::Windows::SizeChangedEventHandler(this, &BrainView::WinSizeChanged);
+		NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;", consoleDebug_));
 }
 
 Canvas ^BrainView::getCanvas() {
@@ -195,11 +195,22 @@ void BrainView::OnMouseClickSave(Object^ sender, RoutedEventArgs^ e)
 }
 
 void	BrainView::DrawCanvas() {
+	Dictionary<ANode ^, NodeWidget ^> widgets;
+	Console::WriteLine("Drawing widgets.");
+
 	// Create widgets
 	for each (ANode ^w in treeController_->getNodesList()) {
 		Console::WriteLine("DRAWING {0}", w->getName());
 		Tuple<UInt32, UInt32>	^pos = w->getPosition();
-		gcnew NodeWidget(this, pos->Item1, pos->Item2, w->getName(), (CodeNode ^)w);
+		widgets.Add(w, gcnew NodeWidget(this, pos->Item1, pos->Item2, w->getName(), (CodeNode ^)w));
+		Console::WriteLine("AFTER");
+	}
+	Console::WriteLine("Drown widgets.");
+	for each (KeyValuePair<ANode ^, NodeWidget ^> ^p in widgets) {
+		for each (KeyValuePair<String ^, ANode ^> ^child in p->Key->getChildren()) {
+	Console::WriteLine("Drawing links");
+			p->Value->LinkChild(widgets[child->Value]);
+		}
 	}
 	/* We need to have all widgets before drawing the links */
 	// for each node widget in win->widgets => create links

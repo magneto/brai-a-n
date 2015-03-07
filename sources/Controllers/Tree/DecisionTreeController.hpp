@@ -25,14 +25,14 @@ public:
 	DecisionTree ^tree_;
 
 public:
-	Dictionary<String^, ANode^> ^getChildren(ANode^ node);
-	void addChild(ANode^ node, ANode^ child);
-	List<ANode^> ^getNodesList();
+	Dictionary<String^, ANode^>					^getChildren(ANode^ node);
+	void										addChild(ANode^ node, ANode^ child);
+	List<ANode^>								^getNodesList();
 	Dictionary<String ^, NodeCreationRoutine ^>	^getNodesTypes();
-	void setNodePos(ANode^ node, UInt32 x, UInt32 y);
+	void										setNodePos(ANode^ node, UInt32 x, UInt32 y);
 	void	Save(String ^path);
 	void	Load(String ^path);
 
-		ANode	^CreateCodeNode(TextBlock ^console);
+	ANode	^CreateCodeNode(TextBlock ^console);
 	//ANode	^CreateFANNNode(TextBlock ^console);
 };

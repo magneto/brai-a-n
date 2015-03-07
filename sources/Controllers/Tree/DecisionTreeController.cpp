@@ -25,7 +25,7 @@ Dictionary<String^, ANode^> ^DecisionTreeController::getChildren(ANode^ Node) {
 void DecisionTreeController::addChild(ANode^ node, ANode ^child) {
 	CheckTree();
 	node->AddChild(child);
-	tree_->RegisterNode(node);
+	//tree_->RegisterNode(node); // cause two time presence
 }
 
 List<ANode^> ^DecisionTreeController::getNodesList() {

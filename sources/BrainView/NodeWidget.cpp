@@ -205,12 +205,37 @@ Point	NodeWidget::CalcRightAttach() {
 	return Point(rootWidget_->Width, rootWidget_->Height / 2);
 }
 
+void	NodeWidget::LinkChild(NodeWidget ^parent) {
+	if (!parents_->ContainsKey(this->node_->getName()) && !parent->children_->ContainsKey(node_->getName())) {
+		Line ^l = gcnew Line();
+
+		l->Visibility = System::Windows::Visibility::Visible;
+		l->StrokeThickness = 4;
+		l->Stroke = System::Windows::Media::Brushes::Black;
+		Point parentOffset = parent->CalcRightAttach();
+		l->X1 = parent->posX_ + parentOffset.X;
+		l->Y1 = parent->posY_ + parentOffset.Y;
+		Point childOffset = this->CalcLeftAttach();
+		l->X2 = childOffset.X + this->posX_;
+		l->Y2 = childOffset.Y + this->posY_;
+
+		// For access on both side to the line
+		this->parents_[parent->node_->getName()] =  gcnew Tuple<NodeWidget ^, Line ^>(parent, l);
+		parent->children_[node_->getName()] =  gcnew Tuple<NodeWidget ^, Line ^>(this, l);
+
+		win->canvas_->Children->Add(l);
+	}
+}
+
 void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseButtonEventArgs ^e)
 {
 	if (win->selected_) {
 		if (win->mode_ == BrainView::Mode::LINK_NODE) {
 			if (!parents_->ContainsKey(this->node_->getName()) && !win->selected_->children_->ContainsKey(node_->getName())) {
-				Line ^l = gcnew Line();
+				LinkChild(win->selected_);
+				// physically add child
+				this->win->treeController_->addChild(this->node_, win->selected_->node_);
+				/*Line ^l = gcnew Line();
 
 				l->Visibility = System::Windows::Visibility::Visible;
 				l->StrokeThickness = 4;
@@ -228,7 +253,7 @@ void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseB
 				this->parents_[win->selected_->node_->getName()] =  gcnew Tuple<NodeWidget ^, Line ^>(win->selected_, l);
 				win->selected_->children_[node_->getName()] =  gcnew Tuple<NodeWidget ^, Line ^>(this, l);
 
-				win->canvas_->Children->Add(l);
+				win->canvas_->Children->Add(l);*/
 			}
 		}
 		if (win->mode_ == BrainView::Mode::DELETE_LINK) {
@@ -248,32 +273,6 @@ void NodeWidget::NodeClic(System::Object ^sender, System::Windows::Input::MouseB
 				win->selected_->parents_->Remove(node_->getName());
 				this->children_->Remove(win->selected_->node_->getName());
 			}
-
-			/*
-			win->selected_->parents_->ContainsKey(node_->getName());
-
-			for each (KeyValuePair<String ^, Tuple<NodeWidget ^, Line ^> ^> ^parent in parents_) {
-				if (parent->Value->Item1->children_->ContainsKey(curName)) {
-					line = parent->Value->Item1->children_[curName]->Item2;
-					parent->Value->Item1->
-					parent->Value->Item1->children_->Remove(curName);
-
-				}
-			}
-
-			for each (KeyValuePair<String ^, Tuple<NodeWidget ^, Line ^> ^> ^child in children_) {
-				if (child->Value->Item1->parents_->ContainsKey(curName)) {
-					line = child->Value->Item1->parents_[curName]->Item2;
-					child->Value->Item1->parents_[curName]->Item1->node_->RemoveChild(curName);
-					child->Value->Item1->parents_->Remove(this->node_->getName());
-
-				}
-			}
-
-			if (line) {
-				win->canvas_->Children->Remove(line);
-			}*/
-
 		}
 		win->mode_ = BrainView::Mode::NONE;
 		win->selected_ = nullptr;
