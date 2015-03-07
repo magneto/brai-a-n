@@ -40,6 +40,8 @@ public:
 public:
 	Canvas ^getCanvas();
 	BrainView();
+
+	// Events
 	void OnMouseClickWin(Object^ sender, MouseButtonEventArgs^ e);
 	void RightClick(Object ^sender, MouseButtonEventArgs^ e);
 	void NodesCreate(Object ^sender, System::Windows::RoutedEventArgs ^e);
@@ -49,5 +51,8 @@ public:
 	void OnMouseClickSave(Object ^sender, RoutedEventArgs^ e);
 	void OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e);
 	void WinSizeChanged(Object^ sender, SizeChangedEventArgs^ e);
+
+	// Tools functions
 	void	DrawCanvas();
+	void	BindVisualLink();
 };

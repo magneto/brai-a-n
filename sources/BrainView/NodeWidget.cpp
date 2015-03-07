@@ -1,3 +1,8 @@
+/*
+** Author: Stephane Nguyen
+** Contribs: Sebastien Maire
+*/
+
 #include "NodeWidget.hpp"
 #include "Models\Tree\Nodes\CodeNode.hpp"
 

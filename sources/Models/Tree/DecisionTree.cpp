@@ -20,10 +20,3 @@ void DecisionTree::RegisterNode(ANode ^node) {
 	allNodes_->Add(node);
 }
 
-ANode ^DecisionTree::CreateCodeNode(TextBlock ^console) {
-	ANode ^n = gcnew CodeNode(console);
-
-	Console::WriteLine("ADDED");
-	allNodes_->Add(n);
-	return n;
-}

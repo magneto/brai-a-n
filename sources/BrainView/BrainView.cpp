@@ -195,14 +195,17 @@ void BrainView::OnMouseClickSave(Object^ sender, RoutedEventArgs^ e)
 }
 
 void	BrainView::DrawCanvas() {
+	// Create widgets
 	for each (ANode ^w in treeController_->getNodesList()) {
-		Console::WriteLine(w->getName());
+		Console::WriteLine("DRAWING {0}", w->getName());
 		Tuple<UInt32, UInt32>	^pos = w->getPosition();
 		gcnew NodeWidget(this, pos->Item1, pos->Item2, w->getName(), (CodeNode ^)w);
-		for each (KeyValuePair<String ^, ANode ^> ^c in w->getChildren()) {
-
-		}
 	}
+	/* We need to have all widgets before drawing the links */
+	// for each node widget in win->widgets => create links
+}
+
+void	BrainView::BindVisualLink() {
 }
 
 void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)

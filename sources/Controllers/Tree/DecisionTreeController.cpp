@@ -30,6 +30,9 @@ void DecisionTreeController::addChild(ANode^ node, ANode ^child) {
 
 List<ANode^> ^DecisionTreeController::getNodesList() {
 	CheckTree();
+	for each (ANode ^n in tree_->allNodes_) {
+		Console::WriteLine("=> {0}", n->getName());
+	}
 	return tree_->getNodes();
 }
 
@@ -38,7 +41,7 @@ Dictionary<String ^, NodeCreationRoutine^>	^DecisionTreeController::getNodesType
 	Dictionary < String ^, NodeCreationRoutine^ > ^d =
 		gcnew Dictionary<String ^, NodeCreationRoutine ^>();
 	
-	d->Add("CodeNode", gcnew NodeCreationRoutine(tree_, &DecisionTree::CreateCodeNode));
+	d->Add("CodeNode", gcnew NodeCreationRoutine(this, &DecisionTreeController::CreateCodeNode));
 	//d->Add("FANNNode", FANNNode::typeid);
 	return d;
 }
@@ -59,5 +62,16 @@ void DecisionTreeController::Load(String ^path) {
 	if (tree_) {
 		//throw gcnew Exception("Do you want to save before load another brain ?");
 	}
+	tree_ = nullptr;
 	tree_ = ser->Unserialize(path);
+	//	for each (ANode ^n in tree_->getNodes()) {
+	//	Console::WriteLine("LOAD {0}", n->getName());
+	//}
+}
+
+ANode ^DecisionTreeController::CreateCodeNode(TextBlock ^console) {
+	ANode ^n = gcnew CodeNode(console);
+
+	tree_->RegisterNode(n);
+	return n;
 }

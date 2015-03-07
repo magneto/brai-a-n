@@ -16,7 +16,7 @@ ref class NodeWidget
 {
 public:
 	CodeNode	^node_;
-		UInt32 x_;
+	UInt32 x_;
 	UInt32 y_;
 	property UInt32		posX_ {
 		UInt32 get() {

@@ -7,9 +7,10 @@
 
 #using <system.dll>
 #using <system.messaging.dll>
+#using <System.Xml.dll>
 
 #include "Models\Tree\DecisionTree.hpp"
-#using <System.Xml.dll>
+
 using namespace System::Xml::Serialization;
 using namespace System::Runtime::Serialization::Formatters::Binary;
 
@@ -24,6 +25,6 @@ private:
 
 public:
 	Serializer();
-	void Serialize(String^ , DecisionTree^% );
+	void Serialize(String^ , DecisionTree^ );
 	DecisionTree^ Unserialize(String^ const);
 };
