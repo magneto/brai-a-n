@@ -9,7 +9,7 @@
 # include "MsgTypes.hpp"
 # include "TerrariaInfo.hpp"
 
-# define messageType(t) (static_cast<int8>(MsgType::t))
+# define messageType(t) (static_cast<uint8>(MsgType::t))
 
 // packing is now set to one
 # pragma pack(push, 1)
@@ -24,7 +24,7 @@
 struct Message
 {
 	int32	length;
-	int8	type;
+	uint8	type;
 };
 
 
@@ -45,39 +45,12 @@ struct Connect : public Message
 	char	version[sizeof(CLIENT_VERSION) - 1];
 };
 
-/*****************************************************************************
-**	RESPONSES (client<-server)
-*****************************************************************************/
-
-struct Accepted : public Message
-{
-	int8	playerSlot;
-};
-
-struct MapInfo : public Message
-{
-	int32	time;
-	int8	dayTime;
-	int8	moonPhase;
-	int8	bloodMoon;
-	int8	eclipse;
-	int32	mapWidth;
-	int32	mapHeight;
-	int32	spawnX;
-	int32	spawnY;
-	int8	misc[61];
-	char	worldName[sizeof(WORLD_NAME) - 1];
-};
-
-/*****************************************************************************
-**	BOTH (client<->server)
-*****************************************************************************/
 struct Appearance : public Message
 {
-	int8	playerSlot;
+	uint8	playerSlot;
 
-	int8	hairStyle;
-	int8	gender;
+	uint8	hairStyle;
+	Gender	gender;
 	color	hair;
 	color	skin;
 	color	eye;
@@ -86,29 +59,66 @@ struct Appearance : public Message
 	color	pants;
 	color	shoes;
 
-	int8	difficulty;
+	uint8	difficulty;
 	char	playerName[sizeof(PLAYER_NAME) - 1];
 };
 
 struct Life : public Message
 {
-	int8	playerSlot;
+	uint8	playerSlot;
 	int16	currLife;
 	int16	maxLife;
 };
 
 struct Mana : public Message
 {
-	int8	playerSlot;
+	uint8	playerSlot;
 	int16	manaLevel;
 	int16	maxMana;
 };
 
 struct Buffs : public Message
 {
-	int8	playerSlot;
-	int8	buffTypes[10];
+	uint8	playerSlot;
+	uint8	buffTypes[10];
 };
+
+struct InventoryItem : public Message
+{
+	uint8	playerSlot;
+	uint8	inventorySlot;
+	int16	itemStack;
+	uint8	itemPrefixId;
+	int16	itemId;
+};
+
+/*****************************************************************************
+**	RESPONSES (client<-server)
+*****************************************************************************/
+
+struct Accepted : public Message
+{
+	uint8	playerSlot;
+};
+
+struct WorldInfo : public Message
+{
+	int32	time;
+	uint8	dayTime;
+	uint8	moonPhase;
+	uint8	bloodMoon;
+	uint8	eclipse;
+	int32	mapWidth;
+	int32	mapHeight;
+	int32	spawnX;
+	int32	spawnY;
+	uint8	misc[61];
+	char	worldName[sizeof(WORLD_NAME) - 1];
+};
+
+/*****************************************************************************
+**	BOTH (client<->server)
+*****************************************************************************/
 
 // packing is reset to 8
 # pragma pack(pop)

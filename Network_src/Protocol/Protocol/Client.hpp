@@ -29,11 +29,14 @@ private:
 	tcp::socket				socket;
 	std::queue<MessagePtr>	queue;
 	Player					player;
+	WorldInfo				worldInfo;
 
 	void	login();
 	void	connection();
 	void	playerConfiguration();
-	void	worldInfo();
+	void	setAppearance(Appearance& a);
+	void	inventorySet();
+	void	worldInfoFetch();
 
 	void	syncRequest(Message *msg, std::size_t msgSize);
 	void	syncResponse(Message *msg, std::size_t msgSize);
@@ -44,7 +47,7 @@ private:
 
 	void	responseExpect();
 	void	response(std::shared_ptr<int32> length, const boost::system::error_code& err);
-	void	recvHandler(boost::shared_array<int8> buf, const boost::system::error_code& err);
+	void	recvHandler(boost::shared_array<uint8> buf, const boost::system::error_code& err);
 
 	inline bool	responseLenCheck(int32 len);
 	inline void	responseTypeCheck(const Message &msg);

@@ -60,25 +60,29 @@ void	Client::login()
 {
 	connection();
 	playerConfiguration();
-	worldInfo();
+	inventorySet();
+	worldInfoFetch();
 }
 
 void	Client::connection()
 {
+	std::cout << "Connection... ";
+	std::flush(std::cout);
 	{
-		auto		msg = msgFactory.makeRequest(MsgType::CONNECT);
-		Connect*	c = static_cast<Connect *>(msg.get());
+		Connect	c;
+		c.type = static_cast<uint8>(MsgType::CONNECT);
 
-		std::strncpy(c->version, CLIENT_VERSION, sizeof(c->version));
-		syncRequest(c, sizeof(*c));
+		std::strncpy(c.version, CLIENT_VERSION, sizeof(c.version));
+		syncRequest(&c, sizeof(c));
 	}
 
 	Accepted	a;
 	syncResponse(&a, sizeof(a));
 	syncResponseCheck(a, MsgType::ACCEPTED);
-	
+
 	player.setLogged(true);
 	player.setSlot(a.playerSlot);
+	std::cout << "\t OK" << std::endl;
 }
 
 void	Client::playerConfiguration()
@@ -88,29 +92,75 @@ void	Client::playerConfiguration()
 	Mana		m;
 	Buffs		b;
 
-
+	std::cout << "Configuring player" << std::endl;
+	setAppearance(a);
 	a.playerSlot = player.getSlot();
-	// TODO
+	a.type = static_cast<uint8>(MsgType::APPEARANCE);
+	a.difficulty = static_cast<uint8>(Difficulty::NORMAL);
+	std::strncpy(a.playerName, PLAYER_NAME, sizeof(a.playerName));
 
 	l.playerSlot = player.getSlot();
-	// TODO
+	l.type = static_cast<uint8>(MsgType::PLAYER_LIFE);
+	l.currLife = 100;
+	l.maxLife = 100;
 
 	m.playerSlot = player.getSlot();
-	// TODO
+	m.type = static_cast<uint8>(MsgType::PLAYER_MANA);
+	m.manaLevel = 20;
+	m.maxMana = 20;
 
 	b.playerSlot = player.getSlot();
-	// TODO
+	b.type = static_cast<uint8>(MsgType::PLAYER_BUFFS);
+	std::memset(b.buffTypes, 0, sizeof(b.buffTypes));
 
-
+	std::cout << "\tsetting player appearance" << std::endl;
 	syncRequest(&a, sizeof(a));
+	std::cout << "\tsetting player life" << std::endl;
 	syncRequest(&l, sizeof(l));
+	std::cout << "\tsetting player mana" << std::endl;
 	syncRequest(&m, sizeof(m));
+	std::cout << "\tsetting player buffs" << std::endl;
 	syncRequest(&b, sizeof(b));
 }
 
-void	Client::worldInfo()
+void	Client::inventorySet()
 {
-	// TODO
+	InventoryItem	request;
+
+	request.type = static_cast<uint8>(MsgType::INVENTORY);
+	request.playerSlot = player.getSlot();
+	request.itemPrefixId = 0;
+	request.itemStack = 1;
+
+	std::vector<ItemId>::const_iterator it = player.getInventory().begin();
+	std::vector<ItemId>::const_iterator end = player.getInventory().end();
+
+	for (request.inventorySlot = 0; request.inventorySlot < 60;
+		++request.inventorySlot)
+	{
+		if (it != end)
+		{
+			request.itemId = static_cast<uint8>(*it);
+			++it;
+		}
+		else if (request.itemStack)
+		{
+			request.itemStack = 0;
+		}
+	}
+}
+
+void	Client::worldInfoFetch()
+{
+	{
+		Message	request;
+		request.type = static_cast<uint8>(MsgType::WORLD_REQ);
+
+		syncRequest(&request, sizeof(request));
+	}
+
+	syncResponse(&worldInfo, sizeof(worldInfo));
+	syncResponseCheck(worldInfo, MsgType::WORLD_INFO);
 }
 
 void	Client::syncRequest(Message *msg, std::size_t msgSize)
@@ -158,7 +208,7 @@ void		Client::response(std::shared_ptr<int32> lengthPtr, const boost::system::er
 	if (!responseLenCheck(len))
 		return ;
 
-	boost::shared_array<int8>	buff(new int8[len + sizeof(len)]);
+	boost::shared_array<uint8>	buff(new uint8[len + sizeof(len)]);
 	std::memcpy(buff.get(), &len, sizeof(len));
 
 	socket.async_receive(boost::asio::buffer(buff.get() + sizeof(len), len),
@@ -166,7 +216,7 @@ void		Client::response(std::shared_ptr<int32> lengthPtr, const boost::system::er
 	);
 }
 
-void		Client::recvHandler(boost::shared_array<int8> buf, const boost::system::error_code& err)
+void		Client::recvHandler(boost::shared_array<uint8> buf, const boost::system::error_code& err)
 {
 	recvErrCheck(err);
 
@@ -180,10 +230,21 @@ void		Client::recvHandler(boost::shared_array<int8> buf, const boost::system::er
 template<typename T>
 void	Client::syncResponseCheck(const T& res, MsgType type)
 {
-	if (res.type != static_cast<int8>(type))
-		throw std::runtime_error("Unexpected response receved.");
-	if (res.length != (sizeof(res) - sizeof(res.length)))
-		std::cerr << "warning: invalid packet size." << std::endl;
+	if (res.type != static_cast<uint8>(type))
+	{
+		std::ostringstream os;
+
+		os << "ERROR: unexpected response " << static_cast<int>(res.type)
+			<< " (expected: " << static_cast<int>(type) << ").";
+		throw std::runtime_error(os.str());
+	}
+	int32	expected = (sizeof(res) - sizeof(res.length));
+	if (res.length != expected)
+	{
+		std::cerr << "WARNING: unexpected response size " << res.length
+			<< " (expected: " << expected << " || type: " << static_cast<int>(res.type)
+			<< ")." << std::endl;
+	}
 }
 
 inline bool	Client::responseLenCheck(int32 len)
@@ -204,17 +265,19 @@ inline bool	Client::responseLenCheck(int32 len)
 
 inline void	Client::responseTypeCheck(const Message& msg)
 {
-	if (msg.type == static_cast<int8>(MsgType::FATAL_ERR))
+	if (msg.type == static_cast<uint8>(MsgType::FATAL_ERR))
 	{
 		auto buf = reinterpret_cast<const char *>(&msg);
 		throw std::runtime_error("Connection rejected: " + std::string(buf + sizeof(msg)));
 	}
+	/*
 	else
 	{
 		std::cout
 			<< "Receved server response." << std::endl 
 			<< "\tmessageType: " << static_cast<int>(msg.type) << std::endl;
 	}
+	*/
 }
 
 inline void Client::recvErrCheck(const boost::system::error_code& err)
@@ -226,4 +289,22 @@ inline void Client::recvErrCheck(const boost::system::error_code& err)
 		os << "recv() error occured." << std::endl << "\treason: " << err.message() << std::endl;
 		throw std::runtime_error(os.str());
 	}
+}
+
+static inline void	setColor(color dst, const color src)
+{
+	std::memcpy(dst, src, sizeof(color));
+}
+
+void	Client::setAppearance(Appearance& a)
+{
+	a.hairStyle = 1; // random
+	a.gender = Gender::MALE;
+	setColor(a.hair, RGB::BLACK);
+	setColor(a.skin, RGB::GREEN);
+	setColor(a.eye, RGB::PINK);
+	setColor(a.shirt, RGB::YELLOW);
+	setColor(a.undershirt, RGB::WHITE);
+	setColor(a.pants, RGB::PURPLE);
+	setColor(a.shoes, RGB::BLUE);
 }

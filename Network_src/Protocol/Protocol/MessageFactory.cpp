@@ -42,7 +42,7 @@ MessagePtr	MessageFactory::create(MsgType msgType, CmdType cmdType)
 	}
 
 	auto* msg = it->second();
-	msg->type = static_cast<int8>(msgType);
+	msg->type = static_cast<uint8>(msgType);
 	return MessagePtr(msg);
 }
 
@@ -60,14 +60,11 @@ const MessageFactory::CmdRegistry MessageFactory::requestsRegistry =
 	{ MsgType::APPEARANCE, [](void) -> Message * { return new Appearance(); } },
 	{ MsgType::PLAYER_LIFE, [](void) -> Message * { return new Life(); } },
 	{ MsgType::PLAYER_MANA, [](void) -> Message * { return new Mana(); } },
-	{ MsgType::PLAYER_BUFFS, [](void) -> Message * { return new Buffs(); } }
+	{ MsgType::PLAYER_BUFFS, [](void) -> Message * { return new Buffs(); } },
+	{ MsgType::INVENTORY, [](void) -> Message * { return new InventoryItem(); } }
 };
 
 const MessageFactory::CmdRegistry MessageFactory::responsesRegistry =
 {
-	{ MsgType::ACCEPTED, [](void) -> Message * { return new Accepted(); } },
-	{ MsgType::APPEARANCE, [](void) -> Message * { return new Appearance(); } },
-	{ MsgType::PLAYER_LIFE, [](void) -> Message * { return new Life(); } },
-	{ MsgType::PLAYER_MANA, [](void) -> Message * { return new Mana(); } },
-	{ MsgType::PLAYER_BUFFS, [](void) -> Message * { return new Buffs(); } }
+	{ MsgType::ACCEPTED, [](void) -> Message * { return new Accepted(); } }
 };
