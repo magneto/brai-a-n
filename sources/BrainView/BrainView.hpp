@@ -7,9 +7,13 @@
 
 #include "include.h"
 #include "Controllers\Tree\DecisionTreeController.hpp"
-#include <iostream>
+#include "Nodes\NodeWidget.hpp"
 
-ref class NodeWidget;
+//ref class ANode;
+
+//#include <iostream>
+
+//ref class CodeNodeWidget;
 
 ref class BrainView : Window
 {
@@ -24,7 +28,7 @@ public:
 	};
 	Boolean		moveWheel_;
 	Mode		mode_;
-	NodeWidget ^selected_;
+	Object ^selected_;
 	System::Windows::Controls::ContextMenu	^addNodeMenu_;
 	Menu^			fileMenu_;
 	Canvas			^canvas_;
@@ -55,4 +59,8 @@ public:
 	// Tools functions
 	void	DrawCanvas();
 	void	BindVisualLink();
+
+	NodeWidget<ANode ^>	^CreateCodeNodeWidget();
 };
+
+delegate NodeWidget<ANode ^>	^NodeWidgetCreateRout();

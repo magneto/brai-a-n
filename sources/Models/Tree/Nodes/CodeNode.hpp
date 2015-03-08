@@ -38,7 +38,7 @@ public:
 	CodeNode(String ^code, TextBlock^ console);
 	CodeNode(TextBlock ^console);
 	String	^generateTemplateCode(LanguageSel lang);
-	void Build();
+	virtual void Build() override;
 	generic<typename T>
 	void Process(T value) override;
 };

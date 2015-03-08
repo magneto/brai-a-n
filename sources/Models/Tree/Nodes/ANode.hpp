@@ -52,6 +52,7 @@ public:
 
 	bool AddChild(ANode ^node);
 	void RemoveChild(String ^name);
+	virtual void	Build() {}
 	generic<typename T>
 	virtual void Process(T val) abstract;
 };

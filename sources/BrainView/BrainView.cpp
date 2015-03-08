@@ -5,18 +5,21 @@
 
 #using <System.Windows.Forms.dll>
 
-#include "NodeWidget.hpp"
+#include "Nodes\CodeNodeWidget.hpp"
 #include "BrainView.hpp"
-#include "Models\Tree\Nodes\CodeNode.hpp"
+//#include "Models\Tree\Nodes\CodeNode.hpp"
 
 using namespace System::Windows::Media::Imaging;
 using namespace Microsoft::Win32;
 
 void	BrainView::createNodesMenu_() {
-	for each (KeyValuePair<String ^, NodeCreationRoutine ^> ^p in treeController_->getNodesTypes()) {
+	Dictionary<String ^, NodeWidgetCreateRout ^>	createRouts;
+
+	createRouts.Add("CodeNode", gcnew NodeWidgetCreateRout(this, &BrainView::CreateCodeNodeWidget));
+	for each (KeyValuePair<String ^, NodeWidgetCreateRout ^> ^p in createRouts) {
 		MenuItem^ item = gcnew MenuItem();
 		item->Header = "Create " + p->Key;
-		this->Tag = p->Value;
+		item->Tag = p->Value;
 		item->Click += gcnew System::Windows::RoutedEventHandler(this, &BrainView::NodesCreate);
 		addNodeMenu_->Items->Add(item);
 	}
@@ -111,7 +114,7 @@ BrainView::BrainView(void) :
 
 		this->Content = dpWin_;
 		this->SizeChanged += gcnew System::Windows::SizeChangedEventHandler(this, &BrainView::WinSizeChanged);
-		NodeWidget ^a = gcnew NodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;", consoleDebug_));
+		//CodeNodeWidget ^a = gcnew CodeNodeWidget(this, 100, 10, "test1", gcnew CodeNode("int b;", consoleDebug_));
 }
 
 Canvas ^BrainView::getCanvas() {
@@ -151,26 +154,35 @@ void BrainView::RightClick(Object^ sender, MouseButtonEventArgs^ e)
 	this->addNodeMenu_->IsOpen = true;
 }
 
+NodeWidget<ANode ^>	^BrainView::CreateCodeNodeWidget() {
+	CodeNode ^n = gcnew CodeNode(this->consoleDebug_);
+	gcnew CodeNodeWidget(this, 42 + this->scroll_->ContentHorizontalOffset, 42 + this->scroll_->ContentVerticalOffset, n->getName(), n);
+
+	return nullptr;
+}
+
 void BrainView::NodesCreate(System::Object ^sender, RoutedEventArgs ^e)
 {
 	MenuItem ^i = (MenuItem ^)sender;
-	NodeCreationRoutine ^nodeCreate = (NodeCreationRoutine ^)this->Tag; // to instantiate the right node
+	NodeWidgetCreateRout ^nodeCreate = (NodeWidgetCreateRout ^)i->Tag; // to instantiate the right node
 
-	CodeNode ^n = (CodeNode ^)nodeCreate->Invoke(this->consoleDebug_);
-	//CodeNode ^n = gcnew CodeNode(consoleDebug_);
-	gcnew NodeWidget(this, 42 + this->scroll_->ContentHorizontalOffset, 42 + this->scroll_->ContentVerticalOffset, n->getName(), n);
+	nodeCreate->Invoke();
 }
 
 void BrainView::OnMouseClickWin(Object^ sender, MouseButtonEventArgs^ e)
 {
+	//NodeWidget<ANode ^>	^%sel = (NodeWidget<ANode ^> ^)selected_;
+
 	if (selected_) {
 		if (mode_ == BrainView::Mode::MOVE) {
-			selected_->posX_ = (UInt32)e->GetPosition(canvas_).X;
-			selected_->posY_ = (UInt32)e->GetPosition(canvas_).Y;
-			Canvas::SetTop(selected_->rootWidget_, e->GetPosition(canvas_).Y);
-			Canvas::SetLeft(selected_->rootWidget_, e->GetPosition(canvas_).X);
-			selected_->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
-			treeController_->setNodePos(selected_->node_, selected_->posX_, selected_->posY_);
+			/*
+			//sel->posX_ = (UInt32)e->GetPosition(canvas_).X;
+			//selected_->posY_ = (UInt32)e->GetPosition(canvas_).Y;
+			Canvas::SetTop(sel->rootWidget_, e->GetPosition(canvas_).Y);
+			Canvas::SetLeft(sel->rootWidget_, e->GetPosition(canvas_).X);
+			sel->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
+			treeController_->setNodePos(sel->node_, sel->posX_, sel->posY_);
+			*/
 		}
 		selected_ = nullptr;
 		mode_ = BrainView::Mode::NONE;
@@ -180,39 +192,28 @@ void BrainView::OnMouseClickWin(Object^ sender, MouseButtonEventArgs^ e)
 void BrainView::OnMouseClickSave(Object^ sender, RoutedEventArgs^ e)
 {
 	SaveFileDialog^ dialogSave = gcnew SaveFileDialog();
-	Stream^ stream;
 
 	dialogSave->Filter = "BrainFiles (*.xml) | *.xml";
-	if (dialogSave->ShowDialog().Value)
-	{
+	if (dialogSave->ShowDialog().Value) {
 		treeController_->Save(dialogSave->FileName);
-		/*if ((stream = dialogSave->OpenFile()) != nullptr)
-		{
-		Console::WriteLine(dialogSave->FileName);
-		stream->Close();
-		}*/
 	}
 }
 
 void	BrainView::DrawCanvas() {
-	Dictionary<ANode ^, NodeWidget ^> widgets;
-	Console::WriteLine("Drawing widgets.");
+	//Dictionary<ANode ^, CodeNodeWidget ^> widgets;
 
-	// Create widgets
-	for each (ANode ^w in treeController_->getNodesList()) {
-		Console::WriteLine("DRAWING {0}", w->getName());
-		Tuple<UInt32, UInt32>	^pos = w->getPosition();
-		widgets.Add(w, gcnew NodeWidget(this, pos->Item1, pos->Item2, w->getName(), (CodeNode ^)w));
-		Console::WriteLine("AFTER");
-	}
-	Console::WriteLine("Drown widgets.");
-	for each (KeyValuePair<ANode ^, NodeWidget ^> ^p in widgets) {
-		for each (KeyValuePair<String ^, ANode ^> ^child in p->Key->getChildren()) {
-	Console::WriteLine("Drawing links");
-			p->Value->LinkChild(widgets[child->Value]);
-		}
-	}
-	/* We need to have all widgets before drawing the links */
+	//// Create widgets
+	//for each (ANode ^w in treeController_->getNodesList()) {
+	//	Tuple<UInt32, UInt32>	^pos = w->getPosition();
+	//	widgets.Add(w, gcnew CodeNodeWidget(this, pos->Item1, pos->Item2, w->getName(), (CodeNode ^)w));
+	//}
+	///* We need to have all widgets before drawing the links */
+	//for each (KeyValuePair<ANode ^, CodeNodeWidget ^> ^p in widgets) {
+	//	for each (KeyValuePair<String ^, ANode ^> ^child in p->Key->getChildren()) {
+	//		p->Value->LinkChild(widgets[child->Value]); // need to be more secure
+	//	}
+	//}
+	
 	// for each node widget in win->widgets => create links
 }
 
@@ -222,7 +223,6 @@ void	BrainView::BindVisualLink() {
 void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)
 {
 	OpenFileDialog^ dialogOpen = gcnew OpenFileDialog();
-	Stream^ stream;
 
 	dialogOpen->Filter = "BrainFiles (*.xml) | *.xml";
 	if (dialogOpen->ShowDialog().Value)
@@ -230,11 +230,6 @@ void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)
 		treeController_->Load(dialogOpen->FileName);
 		this->canvas_->Children->Clear();
 		DrawCanvas();
-		//if ((stream = dialogOpen->OpenFile()) != nullptr)
-		//{
-		//	Console::WriteLine(dialogOpen->FileName);
-		//	stream->Close();
-		//}
 	}
 }
 

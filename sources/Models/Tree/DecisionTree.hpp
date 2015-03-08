@@ -19,8 +19,8 @@ public:
 	DecisionTree();
 
 
-	ANode ^getRootNode();
-	void	setRootNode(ANode ^node);
+	ANode			^getRootNode();
+	void			setRootNode(ANode ^node);
 	List<ANode ^>	^getNodes();
-	void RegisterNode(ANode ^node);
+	void			RegisterNode(ANode ^node);
 };
