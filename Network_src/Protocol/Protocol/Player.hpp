@@ -7,6 +7,7 @@ class Player
 {
 private:
 	bool				logged;
+	bool				playing;
 	uint8				slot;
 	std::vector<ItemId>	inventory;
 
@@ -20,6 +21,9 @@ public:
 
 	void	setLogged(bool status);
 	bool	isLogged() const;
+
+	void	setPlaying(bool status);
+	bool	isPlaying() const;
 
 	const std::vector<ItemId>&	getInventory();
 };

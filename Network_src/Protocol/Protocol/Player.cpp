@@ -1,6 +1,6 @@
 #include "Player.hpp"
 
-Player::Player() : logged(false), slot(0)
+Player::Player() : logged(false), playing(false), slot(0)
 {
 	inventory.push_back(ItemId::BROADSWORD);
 	inventory.push_back(ItemId::PICKAXE);
@@ -26,6 +26,16 @@ void	Player::setLogged(bool status)
 bool	Player::isLogged() const
 {
 	return logged;
+}
+
+void	Player::setPlaying(bool status)
+{
+	playing = status;
+}
+
+bool	Player::isPlaying() const
+{
+	return playing;
 }
 
 const std::vector<ItemId>&	Player::getInventory()

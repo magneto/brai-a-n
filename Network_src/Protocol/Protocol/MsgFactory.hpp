@@ -8,9 +8,13 @@
 **	A Factory for Terria Messages (client <-> server)
 */
 
-typedef std::shared_ptr<Message>	MessagePtr;
+enum class TaskType
+{
+	REQUEST,
+	RESPONSE
+};
 
-class MessageFactory
+class MsgFactory
 {
 public:
 	MessagePtr	makeRequest(MsgType);
@@ -24,15 +28,9 @@ private:
 	typedef Message* (*MessageCreator)(void);
 	typedef std::map<MsgType, MessageCreator> CmdRegistry;
 
-	enum class CmdType
-	{
-		REQUEST,
-		RESPONSE
-	};
-
 	static const CmdRegistry requestsRegistry;
 	static const CmdRegistry responsesRegistry;
 
-	MessagePtr	create(MsgType, CmdType);
-	MessagePtr	create(const Message&, CmdType);
+	MessagePtr	create(MsgType, TaskType);
+	MessagePtr	create(const Message&, TaskType);
 };

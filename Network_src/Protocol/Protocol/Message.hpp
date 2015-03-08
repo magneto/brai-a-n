@@ -6,6 +6,8 @@
 # else
 #  include <arpa/inet.h>
 # endif //_WIN32_WINNT
+# include <utility>
+# include <boost/shared_array.hpp>
 # include "MsgTypes.hpp"
 # include "TerrariaInfo.hpp"
 
@@ -27,6 +29,7 @@ struct Message
 	uint8	type;
 };
 
+typedef std::shared_ptr<Message>	MessagePtr;
 
 /*
 **	Below are declared P.O.D. structs reprenting messages and
@@ -42,7 +45,7 @@ struct Message
 
 struct Connect : public Message
 {
-	char	version[sizeof(CLIENT_VERSION) - 1];
+	char	version[sizeof(TERR_CLIENT_VERSION) - 1];
 };
 
 struct Appearance : public Message
@@ -60,7 +63,12 @@ struct Appearance : public Message
 	color	shoes;
 
 	uint8	difficulty;
-	char	playerName[sizeof(PLAYER_NAME) - 1];
+	char	playerName[sizeof(TERR_PLAYER_NAME) - 1];
+};
+
+struct Key : public Message
+{
+	char	unknown_key[sizeof(TERR_KEY) - 1];
 };
 
 struct Life : public Message
@@ -80,7 +88,7 @@ struct Mana : public Message
 struct Buffs : public Message
 {
 	uint8	playerSlot;
-	uint8	buffTypes[10];
+	uint8	buffTypes[16];
 };
 
 struct InventoryItem : public Message
@@ -92,6 +100,18 @@ struct InventoryItem : public Message
 	int16	itemId;
 };
 
+struct InitTileData : public Message
+{
+	int32	spawnX;
+	int32	spawnY;
+};
+
+struct SpawnPlayer : public Message
+{
+	uint8	playerSlot;
+	int32	spawnX;
+	int32	spawnY;
+};
 /*****************************************************************************
 **	RESPONSES (client<-server)
 *****************************************************************************/
@@ -113,12 +133,117 @@ struct WorldInfo : public Message
 	int32	spawnX;
 	int32	spawnY;
 	uint8	misc[61];
-	char	worldName[sizeof(WORLD_NAME) - 1];
+	char	worldName[sizeof(TERR_WORLD_NAME) - 1];
+};
+
+/**************************************************/
+
+struct Spawn : public Message
+{
+	int32	spawnX;
+	int32	spawnY;
+};
+
+struct StatusBar : public Message // balek $09
+{
+	int32	nbMsg;
+	char	statusText[TERR_MAX_STR];
+};
+
+enum class TileFlags : bool
+{
+	TILE_ACTIVE = 0x0,
+	NOT_USED,
+	HAS_WALL,
+	HAS_LIQUID,
+	HAS_RED_WIRE,
+	IS_HALF_BRICK,
+	HAS_ACTUATOR,
+	IN_ACTIVE,
+	HAS_GREEN_WIRE,
+	HAS_BLUE_WIRE,
+	HAS_COLOR,
+	HAS_WALL_COLOR,
+	SLOPE_A,
+	SLOPE_B
+};
+
+struct TileInfo
+{
+	uint8	flags[2];
+	uint8	color;
+	uint8	wallColor;
+	uint8	tileType;
+	uint8	tileWall;
+	uint8	liquidAmount;
+	int16	tileU;
+	int16	tileV;
+	uint8	liquidType;
+
+	static void	init(TileInfo& self, const boost::shared_array<uint8>& buf);
+};
+
+/*
+** $09 Galere !!!!
+*/
+struct TileRowData : public Message
+{
+	int16		width;
+	int32		tileX;
+	int32		tileY;
+
+	TileInfo	tileData;
+	int16		RLEAmount;
+};
+
+struct NPCUpdate : public Message
+{
+	int16	NPCSlot;
+	single	posX;
+	single	posY;
+	single	velX;
+	single	velY;
+	uint8	target;
+	uint8	flags;
+	int32	life;
+	single	ai[4];
+	int16	npcId;
+};
+
+struct NPCName : public Message
+{
+	uint8	npcSlot;
+	char	npcName[TERR_MAX_NAME];
+};
+
+struct BalanceStats : public Message // balek $39
+{
+	uint8	hallowedAmount;
+	uint8	corruptionAmount;
 };
 
 /*****************************************************************************
 **	BOTH (client<->server)
 *****************************************************************************/
+
+struct ItemUpdate : public Message
+{
+	int16	itemSlot;
+	single	posX;
+	single	posY;
+	single	velX;
+	single	velY;
+	int16	stackAmount;
+	uint8	prefixId;
+	uint8	ownIgnore;
+	int16	itemID;
+};
+
+struct ItemOwnerSet : public Message
+{
+	int16	itemSlot;
+	uint8	ownerPlayerSlot;
+};
 
 // packing is reset to 8
 # pragma pack(pop)

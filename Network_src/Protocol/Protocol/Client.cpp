@@ -2,30 +2,19 @@
 #include <stdexcept>
 #include <cstring>
 #include <cassert>
-#include <boost/bind.hpp>
 #include "Client.hpp"
 
 Client::Client(const char* host, short port):
-	io_service(), socket(io_service), msgFactory()
-{
-	socket.connect(tcp::endpoint(boost::asio::ip::address_v4::from_string(host), port));
-}
-
-Client::~Client()
-{
-	socket.shutdown(tcp::socket::shutdown_send);
-	socket.close();
-}
+	io_service(), connection(*this, io_service, host, port), msgFactory() {}
 
 /*
 **	Starts asynchronous I/O if asynchronous sends/receives are performed
-**
-**	Runs server connection process (synchrone)
+**	Runs server connection process (synchronous)
 */
 void	Client::run()
 {
-	login();
-	responseExpect();
+	loginProcess();
+	connection.responseExpect();
 	io_service.run();
 }
 
@@ -37,67 +26,138 @@ void	Client::stop()
 	io_service.stop();
 }
 
-/*
-**	LOT TO DO HERE
-*/
+void	Client::notify(MessagePtr msg)
+{
+	if (!filterResponse(msg))
+		responseQueue.push(msg);
+}
 
 /*
 **	Yields the server responses queue
 */
-std::queue<MessagePtr>	Client::getQueue()
+MsgQueue&	Client::getResponseQueue()
 {
-	return queue;
+	return responseQueue;
 }
+
+MsgFactory&	Client::getMsgFactory()
+{
+	return msgFactory;
+}
+
 
 /*****************************************************************************
 **	PRIVATE
 *****************************************************************************/
 
-/*
-**	Launches login to server process (asynchronous)
-*/
-void	Client::login()
+bool	Client::filterResponse(MessagePtr msg)
 {
-	connection();
+	bool	filtered = false;
+
+	if (!player.isPlaying())
+	{
+		if (msg->type == static_cast<uint8>(MsgType::SPAWN))
+		{
+			spawn(*(static_cast<Spawn *>(msg.get())));
+			filtered = true;
+		}
+	}
+	return filtered;
+}
+
+/*
+**	Requests spawn (asynchronous)
+*/
+void	Client::spawn(const Spawn& sp)
+{
+	MessagePtr		msg = msgFactory.makeRequest(MsgType::SPAWN_PLAYER);
+	SpawnPlayer*	s = static_cast<SpawnPlayer*>(msg.get());
+
+	std::cout << "Ready to spawn" << std::endl;
+	s->playerSlot = player.getSlot();
+	s->spawnX = sp.spawnX;
+	s->spawnY = sp.spawnY;
+
+	connection.request(msg, sizeof(*s));
+	player.setPlaying(true);
+}
+
+/*
+**	Launches login to server process (synchronous)
+*/
+void	Client::loginProcess()
+{
+	login();
+	appearanceSet();
+	keySend();
 	playerConfiguration();
 	inventorySet();
 	worldInfoFetch();
 }
 
-void	Client::connection()
+void	Client::login()
 {
-	std::cout << "Connection... ";
+	std::cout << "Loggin... ";
 	std::flush(std::cout);
 	{
 		Connect	c;
 		c.type = static_cast<uint8>(MsgType::CONNECT);
 
-		std::strncpy(c.version, CLIENT_VERSION, sizeof(c.version));
-		syncRequest(&c, sizeof(c));
+		std::strncpy(c.version, TERR_CLIENT_VERSION, sizeof(c.version));
+		connection.syncRequest(&c, sizeof(c));
 	}
 
 	Accepted	a;
-	syncResponse(&a, sizeof(a));
-	syncResponseCheck(a, MsgType::ACCEPTED);
+	connection.syncResponse(&a, sizeof(a), MsgType::ACCEPTED);
 
 	player.setLogged(true);
 	player.setSlot(a.playerSlot);
-	std::cout << "\t OK" << std::endl;
+	std::cout << "\tSUCCESS" << std::endl;
+}
+
+void	Client::appearanceSet()
+{
+	Appearance	a;
+	a.playerSlot = player.getSlot();
+	a.type = static_cast<uint8>(MsgType::APPEARANCE);
+	a.difficulty = static_cast<uint8>(Difficulty::NORMAL);
+	std::strncpy(a.playerName, TERR_PLAYER_NAME, sizeof(a.playerName));
+
+	a.hairStyle = 1; // random
+	a.gender = Gender::MALE;
+	RGB::setColor(a.hair, RGB::BLACK);
+	RGB::setColor(a.skin, RGB::GREEN);
+	RGB::setColor(a.eye, RGB::PINK);
+	RGB::setColor(a.shirt, RGB::YELLOW);
+	RGB::setColor(a.undershirt, RGB::WHITE);
+	RGB::setColor(a.pants, RGB::PURPLE);
+	RGB::setColor(a.shoes, RGB::BLUE);
+
+	std::cout << "Setting difficulty and player appearance...";
+	std::flush(std::cout);
+	connection.syncRequest(&a, sizeof(a));
+	std::cout << "\t SUCCESS" << std::endl;
+}
+
+void	Client::keySend()
+{
+	Key	k;
+
+	std::cout << "Sending magic key...";
+	std::flush(std::cout);
+	k.type = static_cast<uint8>(MsgType::AUTH_KEY);
+	std::strncpy(k.unknown_key, TERR_KEY, sizeof(k.unknown_key));
+	connection.syncRequest(&k, sizeof(k));
+	std::cout << "\t SUCCESS" << std::endl;
 }
 
 void	Client::playerConfiguration()
 {
-	Appearance	a;
 	Life		l;
 	Mana		m;
 	Buffs		b;
 
-	std::cout << "Configuring player" << std::endl;
-	setAppearance(a);
-	a.playerSlot = player.getSlot();
-	a.type = static_cast<uint8>(MsgType::APPEARANCE);
-	a.difficulty = static_cast<uint8>(Difficulty::NORMAL);
-	std::strncpy(a.playerName, PLAYER_NAME, sizeof(a.playerName));
+	std::cout << "Configuring player information..." << std::endl;
 
 	l.playerSlot = player.getSlot();
 	l.type = static_cast<uint8>(MsgType::PLAYER_LIFE);
@@ -113,20 +173,21 @@ void	Client::playerConfiguration()
 	b.type = static_cast<uint8>(MsgType::PLAYER_BUFFS);
 	std::memset(b.buffTypes, 0, sizeof(b.buffTypes));
 
-	std::cout << "\tsetting player appearance" << std::endl;
-	syncRequest(&a, sizeof(a));
 	std::cout << "\tsetting player life" << std::endl;
-	syncRequest(&l, sizeof(l));
+	connection.syncRequest(&l, sizeof(l));
 	std::cout << "\tsetting player mana" << std::endl;
-	syncRequest(&m, sizeof(m));
+	connection.syncRequest(&m, sizeof(m));
 	std::cout << "\tsetting player buffs" << std::endl;
-	syncRequest(&b, sizeof(b));
+	connection.syncRequest(&b, sizeof(b));
+	std::cout << "SUCCESS: Player configured" << std::endl;
 }
 
 void	Client::inventorySet()
 {
 	InventoryItem	request;
 
+	std::cout << "Setting inventory... " << std::endl;
+	std::flush(std::cout);
 	request.type = static_cast<uint8>(MsgType::INVENTORY);
 	request.playerSlot = player.getSlot();
 	request.itemPrefixId = 0;
@@ -135,7 +196,7 @@ void	Client::inventorySet()
 	std::vector<ItemId>::const_iterator it = player.getInventory().begin();
 	std::vector<ItemId>::const_iterator end = player.getInventory().end();
 
-	for (request.inventorySlot = 0; request.inventorySlot < 60;
+	for (request.inventorySlot = 0; request.inventorySlot <= 72;
 		++request.inventorySlot)
 	{
 		if (it != end)
@@ -147,164 +208,32 @@ void	Client::inventorySet()
 		{
 			request.itemStack = 0;
 		}
+		std::cout << "\tsetting item #" << static_cast<int>(request.inventorySlot) << std::endl;
+		connection.syncRequest(&request, sizeof(request));
 	}
+	std::cout << "SUCCESS: Inventory set" << std::endl;
 }
 
 void	Client::worldInfoFetch()
 {
+	std::cout << "Fetching world information... ";
+	std::flush(std::cout);
 	{
 		Message	request;
 		request.type = static_cast<uint8>(MsgType::WORLD_REQ);
 
-		syncRequest(&request, sizeof(request));
+		connection.syncRequest(&request, sizeof(request));
 	}
 
-	syncResponse(&worldInfo, sizeof(worldInfo));
-	syncResponseCheck(worldInfo, MsgType::WORLD_INFO);
-}
+	worldInfo.type = 0;
+	connection.syncResponse(&worldInfo, sizeof(worldInfo), MsgType::WORLD_INFO);
+	std::cout << "\tSUCCESS" << std::endl;
 
-void	Client::syncRequest(Message *msg, std::size_t msgSize)
-{
-	msg->length = msgSize - sizeof(msg->length);
-	socket.send(boost::asio::buffer(msg, msgSize));
-}
-
-void	Client::syncResponse(Message *msg, std::size_t msgSize)
-{
-	socket.read_some(boost::asio::buffer(msg, msgSize));
-	responseTypeCheck(*msg);
-}
-
-void	Client::request(MessagePtr msg, std::size_t msgSize)
-{
-	msg->length = msgSize - sizeof(msg->length);
-	socket.async_send(boost::asio::buffer(msg.get(), msgSize),
-		boost::bind(&Client::sendHandler, this, msg, boost::asio::placeholders::error)
-	);
-}
-
-void	Client::sendHandler(MessagePtr msg, const boost::system::error_code& err)
-{
-	if (err)
-	{
-		std::fprintf(stderr, "send() error occured. Message type is %x.\n", msg->type);
-		std::cerr << "\treason: " <<  err.message() << std::endl;
-	}
-}
-
-void		Client::responseExpect()
-{
-	std::shared_ptr<int32>	length = std::make_shared<int32>();
-
-	socket.async_receive(boost::asio::buffer(length.get(), sizeof(*(length.get()))),
-		boost::bind(&Client::response, this, length, boost::asio::placeholders::error)
-	);
-}
-
-void		Client::response(std::shared_ptr<int32> lengthPtr, const boost::system::error_code& err)
-{
-	recvErrCheck(err);
-	int32 len = *(lengthPtr.get());
-	if (!responseLenCheck(len))
-		return ;
-
-	boost::shared_array<uint8>	buff(new uint8[len + sizeof(len)]);
-	std::memcpy(buff.get(), &len, sizeof(len));
-
-	socket.async_receive(boost::asio::buffer(buff.get() + sizeof(len), len),
-		boost::bind(&Client::recvHandler, this, buff, boost::asio::placeholders::error)
-	);
-}
-
-void		Client::recvHandler(boost::shared_array<uint8> buf, const boost::system::error_code& err)
-{
-	recvErrCheck(err);
-
-	auto msg = MessagePtr(reinterpret_cast<Message*>(buf.get())); // cancer ?
-	responseTypeCheck(*msg);
-
-	queue.push(msg);
-	responseExpect();
-}
-
-template<typename T>
-void	Client::syncResponseCheck(const T& res, MsgType type)
-{
-	if (res.type != static_cast<uint8>(type))
-	{
-		std::ostringstream os;
-
-		os << "ERROR: unexpected response " << static_cast<int>(res.type)
-			<< " (expected: " << static_cast<int>(type) << ").";
-		throw std::runtime_error(os.str());
-	}
-	int32	expected = (sizeof(res) - sizeof(res.length));
-	if (res.length != expected)
-	{
-		std::cerr << "WARNING: unexpected response size " << res.length
-			<< " (expected: " << expected << " || type: " << static_cast<int>(res.type)
-			<< ")." << std::endl;
-	}
-}
-
-inline bool	Client::responseLenCheck(int32 len)
-{
-	if (len == 0)
-	{
-		responseExpect();
-		return false;
-	}
-	else if (len < 0)
-	{
-		std::ostringstream	os;
-		os << "Unexpected error occured : invalid len value in server message (" << len << ").";
-		throw std::runtime_error(os.str());
-	}
-	return true;
-}
-
-inline void	Client::responseTypeCheck(const Message& msg)
-{
-	if (msg.type == static_cast<uint8>(MsgType::FATAL_ERR))
-	{
-		auto buf = reinterpret_cast<const char *>(&msg);
-		throw std::runtime_error("Connection rejected: " + std::string(buf + sizeof(msg)));
-	}
-	/*
-	else
-	{
-		std::cout
-			<< "Receved server response." << std::endl 
-			<< "\tmessageType: " << static_cast<int>(msg.type) << std::endl;
-	}
-	*/
-}
-
-inline void Client::recvErrCheck(const boost::system::error_code& err)
-{
-	if (err)
-	{
-		std::ostringstream os;
-
-		os << "recv() error occured." << std::endl << "\treason: " << err.message() << std::endl;
-		throw std::runtime_error(os.str());
-	}
-}
-
-static inline void	setColor(color dst, const color src)
-{
-	std::memcpy(dst, src, sizeof(color));
-}
-
-void	Client::setAppearance(Appearance& a)
-{
-	a.hairStyle = 1; // random
-	a.gender = Gender::MALE;
-	setColor(a.hair, RGB::BLACK);
-	setColor(a.skin, RGB::GREEN);
-	setColor(a.eye, RGB::PINK);
-	setColor(a.shirt, RGB::YELLOW);
-	setColor(a.undershirt, RGB::WHITE);
-	setColor(a.pants, RGB::PURPLE);
-	setColor(a.shoes, RGB::BLUE);
+	std::cout << "Requesting initials data... ";
+	InitTileData	td;
+	td.type = static_cast<uint8>(MsgType::TILE_DATA);
+	td.spawnX = worldInfo.spawnX;
+	td.spawnY = worldInfo.spawnY;
+	connection.syncRequest(&td, sizeof(td));
+	std::cout << "\tSUCCESS" << std::endl;
 }

@@ -4,11 +4,14 @@
 **	Below are types & constants definitions
 **	for client/server protocol
 */
-# define DFL_HOST		"127.0.0.1"
-# define DFL_PORT		7777
-# define WORLD_NAME		"Braian"
-# define CLIENT_VERSION	"Terraria94"
-# define PLAYER_NAME	"Braian"
+# define TERR_DFL_HOST			"127.0.0.1"
+# define TERR_DFL_PORT			7777
+# define TERR_WORLD_NAME		"Braian"
+# define TERR_CLIENT_VERSION	"Terraria94"
+# define TERR_PLAYER_NAME		"toto"
+# define TERR_KEY				"334ee69a-3727-4c98-b20c-5f0398f95f3a"
+# define TERR_MAX_STR			4096
+# define TERR_MAX_NAME			1024
 
 # include <cstdint>
 
@@ -54,4 +57,9 @@ namespace RGB
 	const color	CYAN = { 0, 255, 255 };
 	const color	PURPLE = { 127, 0, 255 };
 	const color	PINK = { 255, 0, 127 };
+
+	inline void	setColor(color dst, const color src)
+	{
+		std::memcpy(dst, src, sizeof(color));
+	}
 };

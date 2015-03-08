@@ -4,7 +4,8 @@
 
 enum class MsgType : std::uint8_t
 {
-	CONNECT = 0x01,
+	NO_MSG = 0x0,
+	CONNECT,
 	FATAL_ERR,
 	ACCEPTED,
 	APPEARANCE,
@@ -18,6 +19,7 @@ enum class MsgType : std::uint8_t
 	SPAWN_PLAYER,
 	PLAYER_CONTROL,
 	PLAYER_ACTIVITY,
+	UNUSED,
 	PLAYER_LIFE,
 	TILE_MODIFY,
 	TIME,
@@ -49,6 +51,7 @@ enum class MsgType : std::uint8_t
 	PLAYER_KILL,
 	PARTY_CHANGE,
 	SIGN_READ,
+	SIGN_TEXT_SET,
 	LIQUID_ADJUST,
 	SPAWN,
 	PLAYER_BUFFS,
@@ -69,5 +72,5 @@ enum class MsgType : std::uint8_t
 	TELEPORT,
 	HEAL,
 	UNDEFINED,
-	UNKNOW
+	AUTH_KEY
 };
