@@ -10,6 +10,7 @@
 //#using <PresentationCore.dll>
 
 using namespace System::Windows::Media::Imaging;
+using namespace System::Collections::Generic;
 
 generic<typename T>
 NodeWidget<T>::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, T node) :
@@ -159,6 +160,26 @@ void NodeWidget<T>::OnMouseClickButtonMove(Object^ sender, MouseButtonEventArgs^
 generic<typename T>
 void NodeWidget<T>::OnMouseClickButtonRemove(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
 {
+	bool	lineRemoved = false;
+	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^w in this->parents_) {
+		if (!lineRemoved) {
+			this->win->canvas_->Children->Remove(w->Value->Item2);
+			lineRemoved = true;
+		}
+		if (w->Value->Item1->children_->ContainsKey(this->node_->getName()))
+			w->Value->Item1->children_->Remove(this->node_->getName());
+	}
+
+	lineRemoved = false;
+	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^w in this->children_) {
+		if (!lineRemoved) {
+			this->win->canvas_->Children->Remove(w->Value->Item2);
+			lineRemoved = true;
+		}
+		if (w->Value->Item1->parents_->ContainsKey(this->node_->getName()))
+			w->Value->Item1->parents_->Remove(this->node_->getName());
+	}
+	win->treeController_->RemoveNode(this->node_);
 	this->win->canvas_->Children->Remove(this->rootWidget_);
 }
 
@@ -184,13 +205,12 @@ void NodeWidget<T>::DeleteLink(System::Object ^sender, System::Windows::RoutedEv
 generic<typename T>
 void	NodeWidget<T>::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
 	NodeWidget<T>	^sel = (NodeWidget<T> ^)win->selected_;
-	Console::WriteLine("SEL {0}", sel);
 
 	if (sel) {
-
 		if (win->mode_ == BrainView::Mode::MOVE) {
 			sel->posX_ = (UInt32)e->GetPosition(win->canvas_).X;
 			sel->posY_ = (UInt32)e->GetPosition(win->canvas_).Y;
+			sel->node_->setPosition(sel->posX_, sel->posY_);
 			Canvas::SetTop(sel->rootWidget_, e->GetPosition(win->canvas_).Y);
 			Canvas::SetLeft(sel->rootWidget_, e->GetPosition(win->canvas_).X);
 		}
@@ -230,9 +250,9 @@ void NodeWidget<T>::NodeClic(System::Object ^sender, System::Windows::Input::Mou
 	if (sel) {
 		if (win->mode_ == BrainView::Mode::LINK_NODE) {
 			if (!parents_->ContainsKey(this->node_->getName()) && !sel->children_->ContainsKey(node_->getName())) {
-				LinkChild((NodeWidget<T> ^)sel);
+				LinkChild(sel);
 
-				this->win->treeController_->addChild(this->node_, sel->node_); // physically add child
+				this->win->treeController_->addChild(sel->node_, this->node_); // physically add child
 			}
 		}
 		if (win->mode_ == BrainView::Mode::DELETE_LINK) {

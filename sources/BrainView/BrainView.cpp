@@ -7,7 +7,6 @@
 
 #include "Nodes\CodeNodeWidget.hpp"
 #include "BrainView.hpp"
-//#include "Models\Tree\Nodes\CodeNode.hpp"
 
 using namespace System::Windows::Media::Imaging;
 using namespace Microsoft::Win32;
@@ -155,7 +154,7 @@ void BrainView::RightClick(Object^ sender, MouseButtonEventArgs^ e)
 }
 
 NodeWidget<ANode ^>	^BrainView::CreateCodeNodeWidget() {
-	CodeNode ^n = gcnew CodeNode(this->consoleDebug_);
+	CodeNode ^n = safe_cast<CodeNode ^>(treeController_->CreateCodeNode(consoleDebug_));
 	gcnew CodeNodeWidget(this, 42 + this->scroll_->ContentHorizontalOffset, 42 + this->scroll_->ContentVerticalOffset, n->getName(), n);
 
 	return nullptr;
@@ -178,14 +177,6 @@ void BrainView::OnMouseClickWin(Object^ sender, MouseButtonEventArgs^ e)
 			PropertyInfo ^strokeI = fi->FieldType->GetProperty("Stroke");
 
 			strokeI->SetValue(fi->GetValue(selected_), gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF)), nullptr);
-			/*
-			//sel->posX_ = (UInt32)e->GetPosition(canvas_).X;
-			//selected_->posY_ = (UInt32)e->GetPosition(canvas_).Y;
-			Canvas::SetTop(sel->rootWidget_, e->GetPosition(canvas_).Y);
-			Canvas::SetLeft(sel->rootWidget_, e->GetPosition(canvas_).X);
-			sel->recNode_->Stroke = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
-			treeController_->setNodePos(sel->node_, sel->posX_, sel->posY_);
-			*/
 		}
 		selected_ = nullptr;
 		mode_ = BrainView::Mode::NONE;
@@ -214,21 +205,14 @@ void	BrainView::DrawCanvas() {
 	/* We need to have all widgets before drawing the links */
 	for each (KeyValuePair<ANode ^, Object ^> ^p in widgets) {
 		for each (KeyValuePair<String ^, ANode ^> ^child in p->Key->getChildren()) {
-			Console::WriteLine("toto {0}", p->Value);
-
-			MethodInfo ^mi = p->Value->GetType()->GetMethod("LinkChild");
-			//p->Value->LinkChild(widgets[child->Value]); // need to be more secure
+			MethodInfo ^mi = widgets[child->Value]->GetType()->GetMethod("LinkChild");
 			array<Object ^> ^args = gcnew array<Object ^>(1);
-			args[0] = widgets[child->Value];
-			mi->Invoke(p->Value, args);
+			args[0] = p->Value;
+			mi->Invoke(widgets[child->Value], args);
 		}
-		Console::WriteLine("toto");
 	}
 	
 	// for each node widget in win->widgets => create links
-}
-
-void	BrainView::BindVisualLink() {
 }
 
 void BrainView::OnMouseClickLoad(Object^ sender, RoutedEventArgs^ e)

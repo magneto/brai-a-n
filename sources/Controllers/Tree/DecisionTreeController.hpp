@@ -33,6 +33,7 @@ public:
 	void	Save(String ^path);
 	void	Load(String ^path);
 
+	void	RemoveNode(ANode ^node);
 	ANode	^CreateCodeNode(TextBlock ^console);
 	//ANode	^CreateFANNNode(TextBlock ^console);
 };

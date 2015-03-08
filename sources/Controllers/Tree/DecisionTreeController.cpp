@@ -64,9 +64,13 @@ void DecisionTreeController::Load(String ^path) {
 	}
 	tree_ = nullptr;
 	tree_ = ser->Unserialize(path);
-	//	for each (ANode ^n in tree_->getNodes()) {
-	//	Console::WriteLine("LOAD {0}", n->getName());
-	//}
+}
+
+void	DecisionTreeController::RemoveNode(ANode ^node) {
+	for each (ANode ^n in tree_->allNodes_) {
+		n->getChildren()->Remove(node->getName());
+	}
+	tree_->allNodes_->Remove(node);
 }
 
 ANode ^DecisionTreeController::CreateCodeNode(TextBlock ^console) {
