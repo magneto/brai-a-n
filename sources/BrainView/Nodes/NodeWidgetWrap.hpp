@@ -5,6 +5,7 @@
 
 #pragma once
 
+using namespace System::Runtime::InteropServices;
 ref class ANode;
 
 generic<typename T> where T : ANode

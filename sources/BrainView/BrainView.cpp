@@ -171,10 +171,13 @@ void BrainView::NodesCreate(System::Object ^sender, RoutedEventArgs ^e)
 
 void BrainView::OnMouseClickWin(Object^ sender, MouseButtonEventArgs^ e)
 {
-	//NodeWidget<ANode ^>	^%sel = (NodeWidget<ANode ^> ^)selected_;
-
 	if (selected_) {
 		if (mode_ == BrainView::Mode::MOVE) {
+			FieldInfo ^fi = selected_->GetType()->GetField("recNode_");
+
+			PropertyInfo ^strokeI = fi->FieldType->GetProperty("Stroke");
+
+			strokeI->SetValue(fi->GetValue(selected_), gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF)), nullptr);
 			/*
 			//sel->posX_ = (UInt32)e->GetPosition(canvas_).X;
 			//selected_->posY_ = (UInt32)e->GetPosition(canvas_).Y;
@@ -200,19 +203,27 @@ void BrainView::OnMouseClickSave(Object^ sender, RoutedEventArgs^ e)
 }
 
 void	BrainView::DrawCanvas() {
-	//Dictionary<ANode ^, CodeNodeWidget ^> widgets;
+	Dictionary<ANode ^, Object ^> widgets;
+	array<NodeWidget<ANode ^> ^>	^widgetsCreate = gcnew array<NodeWidget<ANode ^> ^>(5);
 
-	//// Create widgets
-	//for each (ANode ^w in treeController_->getNodesList()) {
-	//	Tuple<UInt32, UInt32>	^pos = w->getPosition();
-	//	widgets.Add(w, gcnew CodeNodeWidget(this, pos->Item1, pos->Item2, w->getName(), (CodeNode ^)w));
-	//}
-	///* We need to have all widgets before drawing the links */
-	//for each (KeyValuePair<ANode ^, CodeNodeWidget ^> ^p in widgets) {
-	//	for each (KeyValuePair<String ^, ANode ^> ^child in p->Key->getChildren()) {
-	//		p->Value->LinkChild(widgets[child->Value]); // need to be more secure
-	//	}
-	//}
+	// Create widgets
+	for each (ANode ^w in treeController_->getNodesList()) {
+		Tuple<UInt32, UInt32>	^pos = w->getPosition();
+		widgets.Add(w, gcnew CodeNodeWidget(this, pos->Item1, pos->Item2, w->getName(), (CodeNode ^)w));
+	}
+	/* We need to have all widgets before drawing the links */
+	for each (KeyValuePair<ANode ^, Object ^> ^p in widgets) {
+		for each (KeyValuePair<String ^, ANode ^> ^child in p->Key->getChildren()) {
+			Console::WriteLine("toto {0}", p->Value);
+
+			MethodInfo ^mi = p->Value->GetType()->GetMethod("LinkChild");
+			//p->Value->LinkChild(widgets[child->Value]); // need to be more secure
+			array<Object ^> ^args = gcnew array<Object ^>(1);
+			args[0] = widgets[child->Value];
+			mi->Invoke(p->Value, args);
+		}
+		Console::WriteLine("toto");
+	}
 	
 	// for each node widget in win->widgets => create links
 }

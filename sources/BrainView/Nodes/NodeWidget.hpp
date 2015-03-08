@@ -18,8 +18,8 @@ ref class BrainView;
 generic<typename T> where T : ANode
 ref class NodeWidget : NodeWidgetWrap<T> {
 public:
-	Dictionary<String ^, Tuple<NodeWidget<ANode ^> ^, Line ^> ^>	^parents_;
-	Dictionary<String ^, Tuple<NodeWidget<ANode ^> ^, Line ^> ^>	^children_;
+	Dictionary<String ^, Tuple<NodeWidget<T> ^, Line ^> ^>	^parents_;
+	Dictionary<String ^, Tuple<NodeWidget<T> ^, Line ^> ^>	^children_;
 
 	UInt32			x_;
 	UInt32			y_;
@@ -52,7 +52,7 @@ public:
 	Point	CalcLeftAttach();
 	Point	CalcRightAttach();
 
-	void	LinkChild(NodeWidget<ANode ^> ^parent);
+	void	LinkChild(NodeWidget<T > ^parent);
 
 	NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, T node);
 

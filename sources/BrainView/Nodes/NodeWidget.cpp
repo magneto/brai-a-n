@@ -28,8 +28,8 @@ NodeWidget<T>::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, 
 	bMove_(gcnew Button()),
 	x_(posX),
 	y_(posY),
-	parents_(gcnew Dictionary<String ^, Tuple<NodeWidget<ANode ^> ^, Line ^> ^>()),
-	children_(gcnew Dictionary<String ^, Tuple<NodeWidget<ANode ^> ^, Line ^> ^>()),
+	parents_(gcnew Dictionary<String ^, Tuple<NodeWidget<T> ^, Line ^> ^>()),
+	children_(gcnew Dictionary<String ^, Tuple<NodeWidget<T> ^, Line ^> ^>()),
 	menuNode_(gcnew ContextMenu()) {
 		rootWidget_->Width = 355;
 		rootWidget_->Height = 305;
@@ -169,19 +169,14 @@ void NodeWidget<T>::OpenMenuNode(System::Object ^sender, System::Windows::Routed
 }
 
 generic<typename T>
-void NodeWidget<T>::AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
-{
-	NodeWidget<T>	^%sel = (NodeWidget<T> ^)win->selected_;
-
-	sel = this;
+void NodeWidget<T>::AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e) {
+	win->selected_ = this;
 	win->mode_ = BrainView::Mode::LINK_NODE;
 }
 
 generic<typename T>
 void NodeWidget<T>::DeleteLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e) {
-	NodeWidget<T>	^%sel = (NodeWidget<T> ^)win->selected_;
-
-	sel = this;
+	win->selected_ = this;
 	win->mode_ = BrainView::Mode::DELETE_LINK;
 
 }
@@ -204,7 +199,7 @@ void	NodeWidget<T>::OnMouseMove(Object ^sender, MouseEventArgs ^e) {
 }
 
 generic<typename T>
-void	NodeWidget<T>::LinkChild(NodeWidget<ANode ^> ^parent) {
+void	NodeWidget<T>::LinkChild(NodeWidget<T > ^parent) {
 	NodeWidget<T>	^%sel = (NodeWidget<T> ^)win->selected_;
 
 	if (!parents_->ContainsKey(this->node_->getName()) && !parent->children_->ContainsKey(node_->getName())) {
@@ -220,8 +215,8 @@ void	NodeWidget<T>::LinkChild(NodeWidget<ANode ^> ^parent) {
 		l->X2 = childOffset.X + this->posX_;
 		l->Y2 = childOffset.Y + this->posY_;
 
-		this->parents_[parent->node_->getName()] =  gcnew Tuple<NodeWidget<ANode ^> ^, Line ^>(parent, l); // For access on both side to the line
-		parent->children_[node_->getName()] =  gcnew Tuple<NodeWidget<ANode ^> ^, Line ^>((NodeWidget<ANode ^> ^)this, l);
+		this->parents_[parent->node_->getName()] =  gcnew Tuple<NodeWidget<T> ^, Line ^>(parent, l); // For access on both side to the line
+		parent->children_[node_->getName()] =  gcnew Tuple<NodeWidget<T> ^, Line ^>(this, l);
 
 		win->canvas_->Children->Add(l);
 	}
@@ -235,7 +230,7 @@ void NodeWidget<T>::NodeClic(System::Object ^sender, System::Windows::Input::Mou
 	if (sel) {
 		if (win->mode_ == BrainView::Mode::LINK_NODE) {
 			if (!parents_->ContainsKey(this->node_->getName()) && !sel->children_->ContainsKey(node_->getName())) {
-				LinkChild((NodeWidget<ANode ^> ^)sel);
+				LinkChild((NodeWidget<T> ^)sel);
 
 				this->win->treeController_->addChild(this->node_, sel->node_); // physically add child
 			}
@@ -273,10 +268,10 @@ void	NodeWidget<T>::posX_::set(UInt32 i) {
 	NodeWidget<T>	^%sel = (NodeWidget<T> ^)win->selected_;
 	x_ = i;
 	Point childOffset = this->CalcLeftAttach();
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<ANode ^> ^, Line ^> ^> ^k in parents_)
+	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in parents_)
 		k->Value->Item2->X2 = i + childOffset.X;
 	Point parent = sel->CalcRightAttach();
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<ANode ^> ^, Line ^> ^> ^k in children_)
+	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in children_)
 		k->Value->Item2->X1 = i + + parent.X;
 }
 
@@ -290,10 +285,10 @@ void	NodeWidget<T>::posY_::set(UInt32 i) {
 	NodeWidget<T>	^%sel = (NodeWidget<T> ^)win->selected_;
 	y_ = i;
 	Point childOffset = this->CalcLeftAttach();
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<ANode ^> ^, Line ^> ^> ^k in parents_)
+	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in parents_)
 		k->Value->Item2->Y2 = i + childOffset.Y;
 	Point parent = sel->CalcRightAttach();
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<ANode ^> ^, Line ^> ^> ^k in children_)
+	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in children_)
 		k->Value->Item2->Y1 = i + + parent.Y;
 }
 
