@@ -4,13 +4,11 @@
 #include "Client.hpp"
 #include <boost/array.hpp>
 
-#include <vector>
-
 int	main(void)
 {
 	try
 	{
-		Client	cl;
+	  Client	cl("192.168.1.32");
 
 		cl.run();
 	}

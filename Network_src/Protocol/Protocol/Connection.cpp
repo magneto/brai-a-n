@@ -17,11 +17,6 @@ Connection::~Connection()
 	socket.close();
 }
 
-#include <fstream>
-
-static std::ofstream	ofs_send("send.txt", std::ofstream::out);
-static std::ofstream	ofs_recv("recv.txt", std::ofstream::out);
-
 /*
 **	Writes request (synchronous)
 */
@@ -30,10 +25,6 @@ void	Connection::syncRequest(Message *msg, std::size_t msgSize)
 	msg->length = msgSize - sizeof(msg->length);
 
 	socket.send(boost::asio::buffer(msg, msgSize));
-	/*
-	ofs_send.write(reinterpret_cast<char *>(msg), msgSize);
-	std::flush(ofs_send);
-	*/
 }
 
 //#include <boost/array.hpp>
@@ -44,30 +35,11 @@ void	Connection::syncRequest(Message *msg, std::size_t msgSize)
 */
 void	Connection::syncResponse(Message *msg, std::size_t msgSize, MsgType expected)
 {
-	/*
-	boost::array<char, 1024>	buf;
-	auto ret = socket.receive(boost::asio::buffer(buf));
-	std::cout << "received " << ret << " bytes" << std::endl;
-	responseHeaderCheck(*reinterpret_cast<Message *>(&(buf[0])), expected);
-
-	std::memcpy(msg, reinterpret_cast<Message *>(&(buf[0])), ret);
-	return;
-	*/
-
 	socket.receive(boost::asio::buffer(msg, msgSize));
-	if (isEmptyResponse(*msg))
+	if (isInvalidResponse(*msg))
 		syncResponse(msg, msgSize, expected);
 	else
-	{
-		/*
-		if (msg->type == 0x07)
-		{
-			ofs_recv.write(reinterpret_cast<char *>(msg), msgSize);
-			std::flush(ofs_recv);
-		}
-		*/
 		responseHeaderCheck(*msg, expected);
-	}
 }
 
 /*
@@ -78,7 +50,7 @@ void	Connection::request(MessagePtr msg, std::size_t msgSize)
 	msg->length = msgSize - sizeof(msg->length);
 	socket.async_send(boost::asio::buffer(msg.get(), msgSize),
 		boost::bind(&Connection::sendHandler, this, msg, boost::asio::placeholders::error)
-		);
+	);
 }
 
 /*
@@ -87,11 +59,11 @@ void	Connection::request(MessagePtr msg, std::size_t msgSize)
 */
 void		Connection::responseExpect()
 {
-	std::shared_ptr<Message>	header(new Message());
+	MessagePtr	header(new Message());
 
 	socket.async_receive(boost::asio::buffer(header.get(), sizeof(*header)),
 		boost::bind(&Connection::response, this, header, boost::asio::placeholders::error)
-		);
+	);
 }
 
 void	Connection::sendHandler(MessagePtr msg, const boost::system::error_code& err)
@@ -99,24 +71,27 @@ void	Connection::sendHandler(MessagePtr msg, const boost::system::error_code& er
 	asyncTaskCheck(err, TaskType::REQUEST, static_cast<MsgType>(msg->type));
 }
 
+#include <fstream>
+
+//static std::ofstream	ofs_send("send.txt", std::ofstream::out);
+static std::ofstream	ofs_recv("recv.txt", std::ofstream::out);
+
 void		Connection::response(MessagePtr header, const boost::system::error_code& err)
 {
 	asyncTaskCheck(err, TaskType::RESPONSE);
-	if (!isEmptyResponse(*header))
+
+	ofs_recv.write(reinterpret_cast<char *>(header.get()), sizeof(*header));
+	std::flush(ofs_recv);
+
+	if (!isInvalidResponse(*header))
 	{
-		auto len = header->length;
-		std::cout << "[ASYNC] receved response header: type="
-				<< (int)(header->type) << " length=" << len << std::endl;
+		uint8*		buff = new uint8[header->length - 1];
 
-		//std::shared_ptr< std::vector<uint8> > buff(new std::vector<uint8>(len + sizeof(len)));
-		auto	buff = new std::vector<uint8>(len + sizeof(len));
-		auto	test = new std::string("hahaha");
+		std::cout	<< "[ASYNC] receved response header: type="
+					<< (int)(header->type) << " length=" << header->length << std::endl;
 
-		std::memcpy(buff->data(), header.get(), sizeof(*header));
-
-		socket.async_receive(boost::asio::buffer(buff->data() + sizeof(*header), len),
-			boost::bind(&Connection::recvHandler, this, buff, test, boost::asio::placeholders::error)
-			);
+		auto boostFunc = boost::bind(&Connection::recvHandler, this, header, buff, boost::asio::placeholders::error);
+		socket.async_receive(boost::asio::buffer(buff, header->length - 1), boostFunc);
 	}
 	else
 	{
@@ -124,31 +99,30 @@ void		Connection::response(MessagePtr header, const boost::system::error_code& e
 	}
 }
 
-//void		Connection::recvHandler(std::shared_ptr< std::vector<uint8> > buf, const boost::system::error_code& err)
-void	Connection::recvHandler(std::vector<uint8> *buf, std::string* test, const boost::system::error_code& err)
+void	Connection::recvHandler(MessagePtr header, uint8 *buf, const boost::system::error_code& err)
 {
 	asyncTaskCheck(err, TaskType::RESPONSE);
+	disconnectCheck(*header);
 
-	if (!isIgnoredResponse(*reinterpret_cast<Message*>(buf->data())))
+	ofs_recv.write(reinterpret_cast<char *>(buf), header->length - 1);
+	std::flush(ofs_recv);
+
+	if (!isIgnoredResponse(*header))
 	{
-		auto		res = *reinterpret_cast<Message*>(buf->data());
-		disconnectCheck(res);
+		MessagePtr		msg = client.getMsgFactory().makeResponse(*header);
+		uint8*			msgData = reinterpret_cast<uint8*>(msg.get());
 
-		MessagePtr		msg = client.getMsgFactory().makeResponse(res);
-		uint8*			data = reinterpret_cast<uint8*>(msg.get());
-		std::size_t		msgSize = sizeof(*msg);
-		std::memcpy(data + msgSize, buf->data() + msgSize, buf->size() - msgSize);
+		std::memcpy(msgData, header.get(), sizeof(*header));
+		std::memcpy(msgData + sizeof(*header), buf, header->length - 1);
 
 		client.notify(msg);
 	}
 
+	delete[] buf;
 	responseExpect();
-
-	delete test;
-	//delete buf;
 }
 
-inline bool	Connection::isEmptyResponse(const Message& msg) const
+inline bool	Connection::isInvalidResponse(const Message& msg) const
 {
 	if (msg.type > static_cast<uint8>(MsgType::AUTH_KEY))
 	{

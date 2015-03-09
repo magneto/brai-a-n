@@ -34,11 +34,10 @@ private:
 	void	sendHandler(MessagePtr msg, const boost::system::error_code& err);
 
 	void	response(MessagePtr header, const boost::system::error_code& err);
-//	void	recvHandler(std::shared_ptr< std::vector<uint8> > buf, const boost::system::error_code& err);
-	void	recvHandler(std::vector<uint8> *buf, std::string* test, const boost::system::error_code& err);
+	void	recvHandler(MessagePtr header, uint8 *buf, const boost::system::error_code& err);
 
 	inline void	disconnectCheck(const Message &msg) const;
-	inline bool	isEmptyResponse(const Message& msg) const;
+	inline bool	isInvalidResponse(const Message& msg) const;
 	inline bool	isIgnoredResponse(const Message& header) const;
 	void		responseHeaderCheck(const Message& res, MsgType expectedType);
 	inline void asyncTaskCheck(const boost::system::error_code& err, TaskType taskType, MsgType msgType = MsgType::NO_MSG);

@@ -29,14 +29,14 @@ MessagePtr	MsgFactory::makeResponse(const Message& src)
 	return create(src, TaskType::RESPONSE);
 }
 
-MessagePtr	MsgFactory::create(MsgType msgType, TaskType TaskType)
+MessagePtr	MsgFactory::create(MsgType msgType, TaskType taskType)
 {
-	const CmdRegistry&	registry = (TaskType == TaskType::REQUEST) ? requestsRegistry : responsesRegistry;
+	const CmdRegistry&	registry = (taskType == TaskType::REQUEST) ? requestsRegistry : responsesRegistry;
 	auto it = registry.find(msgType);
 
 	if (it == registry.end())
 	{
-		std::string type = (TaskType == TaskType::REQUEST) ? "request" : "response";
+		std::string type = (taskType == TaskType::REQUEST) ? "request" : "response";
 		throw(std::logic_error("Invalid " + type + " type."));
 	}
 
@@ -45,9 +45,9 @@ MessagePtr	MsgFactory::create(MsgType msgType, TaskType TaskType)
 	return MessagePtr(msg);
 }
 
-MessagePtr	MsgFactory::create(const Message& src, TaskType TaskType)
+MessagePtr	MsgFactory::create(const Message& src, TaskType taskType)
 {
-	auto msg = this->create(static_cast<MsgType>(src.type), TaskType);
+	auto msg = this->create(static_cast<MsgType>(src.type), taskType);
 
 	*msg = src;
 	return msg;

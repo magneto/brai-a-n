@@ -161,7 +161,7 @@ struct NPCName : public Message
 	char	npcName[TERR_MAX_NAME];
 };
 
-enum class TileFlags : bool
+enum class TileFlags : uint8
 {
 	TILE_ACTIVE = 0x0,
 	NOT_USED,

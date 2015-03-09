@@ -14,6 +14,7 @@
 # define TERR_MAX_NAME			1024
 
 # include <cstdint>
+# include <cstring>
 
 typedef std::uint8_t	uint8;
 typedef std::int16_t	int16;
