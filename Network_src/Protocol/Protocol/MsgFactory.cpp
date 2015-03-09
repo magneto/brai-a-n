@@ -1,5 +1,4 @@
 #include <stdexcept>
-#include <vector>
 #include <string>
 #include "MsgFactory.hpp"
 

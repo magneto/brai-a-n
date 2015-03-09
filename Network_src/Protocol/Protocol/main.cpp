@@ -9,6 +9,7 @@ int	main(void)
 	try
 	{
 		Client	cl;
+
 		cl.run();
 	}
 	catch (std::exception& e)

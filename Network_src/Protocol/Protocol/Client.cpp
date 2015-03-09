@@ -45,7 +45,6 @@ MsgFactory&	Client::getMsgFactory()
 	return msgFactory;
 }
 
-
 /*****************************************************************************
 **	PRIVATE
 *****************************************************************************/
@@ -73,13 +72,15 @@ void	Client::spawn(const Spawn& sp)
 	MessagePtr		msg = msgFactory.makeRequest(MsgType::SPAWN_PLAYER);
 	SpawnPlayer*	s = static_cast<SpawnPlayer*>(msg.get());
 
-	std::cout << "Ready to spawn" << std::endl;
+	std::cout << "Spawn request...";
+	std::flush(std::cout);
 	s->playerSlot = player.getSlot();
 	s->spawnX = sp.spawnX;
 	s->spawnY = sp.spawnY;
 
 	connection.request(msg, sizeof(*s));
 	player.setPlaying(true);
+	std::cout << "Spawn request..." << std::endl;
 }
 
 /*
@@ -89,7 +90,7 @@ void	Client::loginProcess()
 {
 	login();
 	appearanceSet();
-	keySend();
+	//keySend();
 	playerConfiguration();
 	inventorySet();
 	worldInfoFetch();
@@ -111,7 +112,7 @@ void	Client::login()
 	connection.syncResponse(&a, sizeof(a), MsgType::ACCEPTED);
 
 	player.setLogged(true);
-	player.setSlot(a.playerSlot);
+	player.setSlot(static_cast<uint8>(a.playerSlot));
 	std::cout << "\tSUCCESS" << std::endl;
 }
 
@@ -157,7 +158,7 @@ void	Client::playerConfiguration()
 	Mana		m;
 	Buffs		b;
 
-	std::cout << "Configuring player information..." << std::endl;
+	std::cout << "Configuring player status..." << std::endl;
 
 	l.playerSlot = player.getSlot();
 	l.type = static_cast<uint8>(MsgType::PLAYER_LIFE);
@@ -190,13 +191,13 @@ void	Client::inventorySet()
 	std::flush(std::cout);
 	request.type = static_cast<uint8>(MsgType::INVENTORY);
 	request.playerSlot = player.getSlot();
-	request.itemPrefixId = 0;
+	//request.itemPrefixId = 0;
 	request.itemStack = 1;
 
 	std::vector<ItemId>::const_iterator it = player.getInventory().begin();
 	std::vector<ItemId>::const_iterator end = player.getInventory().end();
 
-	for (request.inventorySlot = 0; request.inventorySlot <= 72;
+	for (request.inventorySlot = 0; request.inventorySlot <= 59;
 		++request.inventorySlot)
 	{
 		if (it != end)
@@ -216,7 +217,7 @@ void	Client::inventorySet()
 
 void	Client::worldInfoFetch()
 {
-	std::cout << "Fetching world information... ";
+	std::cout << "Requesting world information... ";
 	std::flush(std::cout);
 	{
 		Message	request;
@@ -229,11 +230,16 @@ void	Client::worldInfoFetch()
 	connection.syncResponse(&worldInfo, sizeof(worldInfo), MsgType::WORLD_INFO);
 	std::cout << "\tSUCCESS" << std::endl;
 
-	std::cout << "Requesting initials data... ";
+	std::cout << "Requesting initial tile data... ";
 	InitTileData	td;
-	td.type = static_cast<uint8>(MsgType::TILE_DATA);
+	td.type = static_cast<uint8>(MsgType::INIT_TILE_DATA);
 	td.spawnX = worldInfo.spawnX;
 	td.spawnY = worldInfo.spawnY;
 	connection.syncRequest(&td, sizeof(td));
 	std::cout << "\tSUCCESS" << std::endl;
+
+	char	name[sizeof(TERR_WORLD_NAME)];
+	std::memset(name, 0, sizeof(name));
+	std::strncpy(name, worldInfo.worldName, sizeof(worldInfo.worldName));
+	std::cout << "World name is: " << name << std::endl;
 }

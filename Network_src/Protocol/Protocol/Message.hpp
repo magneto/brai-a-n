@@ -11,8 +11,6 @@
 # include "MsgTypes.hpp"
 # include "TerrariaInfo.hpp"
 
-# define messageType(t) (static_cast<uint8>(MsgType::t))
-
 // packing is now set to one
 # pragma pack(push, 1)
 
@@ -88,15 +86,16 @@ struct Mana : public Message
 struct Buffs : public Message
 {
 	uint8	playerSlot;
-	uint8	buffTypes[16];
+	uint8	buffTypes[10];
 };
 
 struct InventoryItem : public Message
 {
 	uint8	playerSlot;
 	uint8	inventorySlot;
+
 	int16	itemStack;
-	uint8	itemPrefixId;
+	//uint8	itemPrefixId;
 	int16	itemId;
 };
 
@@ -118,25 +117,23 @@ struct SpawnPlayer : public Message
 
 struct Accepted : public Message
 {
-	uint8	playerSlot;
+	int32	playerSlot;
 };
 
 struct WorldInfo : public Message
 {
 	int32	time;
 	uint8	dayTime;
-	uint8	moonPhase;
-	uint8	bloodMoon;
-	uint8	eclipse;
+	uint8	moon[2];
 	int32	mapWidth;
 	int32	mapHeight;
 	int32	spawnX;
 	int32	spawnY;
-	uint8	misc[61];
+	uint8	worldConfRawData[13];
 	char	worldName[sizeof(TERR_WORLD_NAME) - 1];
 };
 
-/**************************************************/
+
 
 struct Spawn : public Message
 {
@@ -144,10 +141,24 @@ struct Spawn : public Message
 	int32	spawnY;
 };
 
-struct StatusBar : public Message // balek $09
+struct NPCUpdate : public Message
 {
-	int32	nbMsg;
-	char	statusText[TERR_MAX_STR];
+	int16	NPCSlot;
+	single	posX;
+	single	posY;
+	single	velX;
+	single	velY;
+	uint8	target;
+	uint8	flags;
+	int32	life;
+	single	ai[4];
+	int16	npcId;
+};
+
+struct NPCName : public Message
+{
+	uint8	npcSlot;
+	char	npcName[TERR_MAX_NAME];
 };
 
 enum class TileFlags : bool
@@ -184,7 +195,7 @@ struct TileInfo
 };
 
 /*
-** $09 Galere !!!!
+** $0A galère !!
 */
 struct TileRowData : public Message
 {
@@ -194,32 +205,6 @@ struct TileRowData : public Message
 
 	TileInfo	tileData;
 	int16		RLEAmount;
-};
-
-struct NPCUpdate : public Message
-{
-	int16	NPCSlot;
-	single	posX;
-	single	posY;
-	single	velX;
-	single	velY;
-	uint8	target;
-	uint8	flags;
-	int32	life;
-	single	ai[4];
-	int16	npcId;
-};
-
-struct NPCName : public Message
-{
-	uint8	npcSlot;
-	char	npcName[TERR_MAX_NAME];
-};
-
-struct BalanceStats : public Message // balek $39
-{
-	uint8	hallowedAmount;
-	uint8	corruptionAmount;
 };
 
 /*****************************************************************************
@@ -243,6 +228,22 @@ struct ItemOwnerSet : public Message
 {
 	int16	itemSlot;
 	uint8	ownerPlayerSlot;
+};
+
+/***************************************************
+IGNORED
+***************************************************/
+
+struct StatusBar : public Message // balek $09
+{
+	int32	nbMsg;
+	char	statusText[TERR_MAX_STR];
+};
+
+struct BalanceStats : public Message // balek $39
+{
+	uint8	hallowedAmount;
+	uint8	corruptionAmount;
 };
 
 // packing is reset to 8
