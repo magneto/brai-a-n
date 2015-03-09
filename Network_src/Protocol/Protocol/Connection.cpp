@@ -99,7 +99,7 @@ void	Connection::sendHandler(MessagePtr msg, const boost::system::error_code& er
 	asyncTaskCheck(err, TaskType::REQUEST, static_cast<MsgType>(msg->type));
 }
 
-void		Connection::response(std::shared_ptr<Message> header, const boost::system::error_code& err)
+void		Connection::response(MessagePtr header, const boost::system::error_code& err)
 {
 	asyncTaskCheck(err, TaskType::RESPONSE);
 	if (!isEmptyResponse(*header))
@@ -108,12 +108,14 @@ void		Connection::response(std::shared_ptr<Message> header, const boost::system:
 		std::cout << "[ASYNC] receved response header: type="
 				<< (int)(header->type) << " length=" << len << std::endl;
 
-		std::shared_ptr< std::vector<uint8> > buff(new std::vector<uint8>(len + sizeof(len)));
+		//std::shared_ptr< std::vector<uint8> > buff(new std::vector<uint8>(len + sizeof(len)));
+		auto	buff = new std::vector<uint8>(len + sizeof(len));
+		auto	test = new std::string("hahaha");
 
 		std::memcpy(buff->data(), header.get(), sizeof(*header));
 
-		socket.async_receive(boost::asio::buffer(buff->data() + sizeof(header), len),
-			boost::bind(&Connection::recvHandler, this, buff, boost::asio::placeholders::error)
+		socket.async_receive(boost::asio::buffer(buff->data() + sizeof(*header), len),
+			boost::bind(&Connection::recvHandler, this, buff, test, boost::asio::placeholders::error)
 			);
 	}
 	else
@@ -122,23 +124,28 @@ void		Connection::response(std::shared_ptr<Message> header, const boost::system:
 	}
 }
 
-void		Connection::recvHandler(std::shared_ptr< std::vector<uint8> > buf, const boost::system::error_code& err)
+//void		Connection::recvHandler(std::shared_ptr< std::vector<uint8> > buf, const boost::system::error_code& err)
+void	Connection::recvHandler(std::vector<uint8> *buf, std::string* test, const boost::system::error_code& err)
 {
 	asyncTaskCheck(err, TaskType::RESPONSE);
 
 	if (!isIgnoredResponse(*reinterpret_cast<Message*>(buf->data())))
 	{
-		MessagePtr	msg = client.getMsgFactory().makeResponse(*reinterpret_cast<Message*>(buf->data()));
-		uint8*		data = reinterpret_cast<uint8*>(msg.get());
-		std::size_t	msgSize = sizeof(*msg);
+		auto		res = *reinterpret_cast<Message*>(buf->data());
+		disconnectCheck(res);
 
+		MessagePtr		msg = client.getMsgFactory().makeResponse(res);
+		uint8*			data = reinterpret_cast<uint8*>(msg.get());
+		std::size_t		msgSize = sizeof(*msg);
 		std::memcpy(data + msgSize, buf->data() + msgSize, buf->size() - msgSize);
 
-		disconnectCheck(*msg);
 		client.notify(msg);
 	}
 
 	responseExpect();
+
+	delete test;
+	//delete buf;
 }
 
 inline bool	Connection::isEmptyResponse(const Message& msg) const

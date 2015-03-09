@@ -4,6 +4,8 @@
 #include "Client.hpp"
 #include <boost/array.hpp>
 
+#include <vector>
+
 int	main(void)
 {
 	try

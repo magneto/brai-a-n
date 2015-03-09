@@ -9,6 +9,8 @@ using boost::asio::ip::tcp;
 
 class	Client;
 
+//#include <boost/shared_ptr.hpp>
+
 class Connection
 {
 public:
@@ -31,8 +33,9 @@ private:
 
 	void	sendHandler(MessagePtr msg, const boost::system::error_code& err);
 
-	void	response(std::shared_ptr<Message> header, const boost::system::error_code& err);
-	void	recvHandler(std::shared_ptr< std::vector<uint8> > buf, const boost::system::error_code& err);
+	void	response(MessagePtr header, const boost::system::error_code& err);
+//	void	recvHandler(std::shared_ptr< std::vector<uint8> > buf, const boost::system::error_code& err);
+	void	recvHandler(std::vector<uint8> *buf, std::string* test, const boost::system::error_code& err);
 
 	inline void	disconnectCheck(const Message &msg) const;
 	inline bool	isEmptyResponse(const Message& msg) const;
