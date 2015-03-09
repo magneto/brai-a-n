@@ -5,8 +5,9 @@
 
 #include "ANode.hpp"
 
-ANode::ANode() :
-	children_(gcnew Dictionary<String ^, ANode ^>()),
+ANode::ANode(TextBlock ^console) :
+	console_(console),
+	children_(gcnew Dictionary<ANode ^, ANode ^>()),
 	posX_(0),
 	posY_(0),
 	number(Counter::getNumber()),
@@ -22,19 +23,30 @@ Tuple<UInt32, UInt32>	^ANode::getPosition() {
 	return gcnew Tuple<UInt32, UInt32>(posX_, posY_);
 }
 String ^ANode::getName() { return name_; }
-Dictionary<String ^, ANode ^>	^ANode::getChildren() { return children_; }
+Dictionary<ANode ^, ANode ^>	^ANode::getChildren() { return children_; }
 
 
 bool	ANode::AddChild(ANode ^node) {
-	if (children_->ContainsKey(node->getName())) {
+	if (children_->ContainsKey(node)) {
 		return false;
 	}
-	children_[node->getName()] = node;
+	children_[node] = node;
 	return true;
 }
 
-void ANode::RemoveChild(String ^name) {
-	if (children_->ContainsKey(name)) {
-		children_->Remove(name);
+void ANode::RemoveChild(ANode ^node) {
+	if (children_->ContainsKey(node)) {
+		children_->Remove(node);
 	}
+}
+
+generic<typename T>
+void ANode::Call(T val) {
+	Dictionary<String ^, ANode ^>	^namedC = gcnew Dictionary<String ^, ANode ^>();
+
+	for each (KeyValuePair<ANode ^, ANode ^> ^c in children_)
+	{
+		namedC->Add(c->Key->getName(), c->Value);
+	}
+	this->Process(namedC, val);
 }

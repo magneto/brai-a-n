@@ -24,6 +24,15 @@ void	BrainView::createNodesMenu_() {
 	}
 }
 
+void	BrainView::RunTree() {
+	while (1) {
+		if (treeController_->tree_)
+		if (treeController_->tree_->getRootNode())
+			treeController_->tree_->getRootNode()->Call(42);
+	}
+}
+
+
 BrainView::BrainView(void) :
 	canvas_(gcnew Canvas()),
 	scroll_(gcnew ScrollViewer()),
@@ -194,7 +203,7 @@ void BrainView::OnMouseClickSave(Object^ sender, RoutedEventArgs^ e)
 }
 
 void	BrainView::DrawCanvas() {
-	Dictionary<ANode ^, Object ^> widgets;
+	Dictionary<ANode ^, Object ^>	widgets;
 	array<NodeWidget<ANode ^> ^>	^widgetsCreate = gcnew array<NodeWidget<ANode ^> ^>(5);
 
 	// Create widgets
@@ -204,7 +213,7 @@ void	BrainView::DrawCanvas() {
 	}
 	/* We need to have all widgets before drawing the links */
 	for each (KeyValuePair<ANode ^, Object ^> ^p in widgets) {
-		for each (KeyValuePair<String ^, ANode ^> ^child in p->Key->getChildren()) {
+		for each (KeyValuePair<ANode ^, ANode ^> ^child in p->Key->getChildren()) {
 			MethodInfo ^mi = widgets[child->Value]->GetType()->GetMethod("LinkChild");
 			array<Object ^> ^args = gcnew array<Object ^>(1);
 			args[0] = p->Value;

@@ -27,10 +27,11 @@ NodeWidget<T>::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, 
 	bAdd_(gcnew Button()),
 	bBuild_(gcnew Button()),
 	bMove_(gcnew Button()),
+	boxRootNode_(gcnew CheckBox()),
 	x_(posX),
 	y_(posY),
-	parents_(gcnew Dictionary<String ^, Tuple<NodeWidget<T> ^, Line ^> ^>()),
-	children_(gcnew Dictionary<String ^, Tuple<NodeWidget<T> ^, Line ^> ^>()),
+	parents_(gcnew Dictionary<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^>()),
+	children_(gcnew Dictionary<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^>()),
 	menuNode_(gcnew ContextMenu()) {
 		rootWidget_->Width = 355;
 		rootWidget_->Height = 305;
@@ -56,7 +57,13 @@ NodeWidget<T>::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, 
 		tBoxTitle_->Text = node_->getName();
 		tBoxTitle_->TextChanged += gcnew System::Windows::Controls::TextChangedEventHandler(this, &NodeWidget<T>::tBoxTitleChanged);
 		gTitle_->Children->Add(tBoxTitle_);
+		boxRootNode_->Content = "IsRootNode";
+		boxRootNode_->Margin = System::Windows::Thickness(250, 5, 0, 0);
+		boxRootNode_->Foreground = gcnew SolidColorBrush(Color::FromArgb(0xFF, 0x26, 0xBE, 0xEF));
+		gTitle_->Children->Add(boxRootNode_);
 
+		boxRootNode_->Checked += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget<T>::CheckRootNode);
+		boxRootNode_->Unchecked += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget<T>::UncheckRootNode);
 		spButton_->Width = 350;
 		spButton_->Height = 70;
 		spButton_->Background = gcnew SolidColorBrush(Color::FromArgb(0xFF, 100, 100, 100));
@@ -85,7 +92,6 @@ NodeWidget<T>::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, 
 		img->Source = btm;
 		img->Stretch = Stretch::Fill;
 		bAdd_->Content = img;
-		bRemove_->Content = img;
 		BitmapImage ^btm2 = gcnew BitmapImage(gcnew Uri(".\\Images\\build_button_n.png", System::UriKind::Relative));
 		Image ^img2 = gcnew Image();
 		img2->Source = btm2;
@@ -96,19 +102,22 @@ NodeWidget<T>::NodeWidget(BrainView ^curWin, int posX, int posY, String ^title, 
 		img3->Source = btm3;
 		img3->Stretch = Stretch::Fill;
 		bMove_->Content = img3;
+		BitmapImage ^btm4 = gcnew BitmapImage(gcnew Uri(".\\Images\\remove_button_n.png", System::UriKind::Relative));
+		Image ^img4 = gcnew Image();
+		img4->Source = btm4;
+		img4->Stretch = Stretch::Fill;
+		bRemove_->Content = img4;
+
 
 		spButton_->Children->Add(bMove_);
 		spButton_->Children->Add(bRemove_);
 		spButton_->Children->Add(bAdd_);
 		spButton_->Children->Add(bBuild_);
 
-
 		rootWidget_->Children->Add(spRoot_);
 		rootWidget_->Children->Add(recNode_);
 		spRoot_->Children->Add(gTitle_);
 		spRoot_->Children->Add(spButton_);
-
-
 
 		Canvas::SetTop(rootWidget_, posY);
 		Canvas::SetLeft(rootWidget_, posX);
@@ -161,23 +170,17 @@ generic<typename T>
 void NodeWidget<T>::OnMouseClickButtonRemove(System::Object ^sender, System::Windows::RoutedEventArgs ^e)
 {
 	bool	lineRemoved = false;
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^w in this->parents_) {
-		if (!lineRemoved) {
-			this->win->canvas_->Children->Remove(w->Value->Item2);
-			lineRemoved = true;
-		}
-		if (w->Value->Item1->children_->ContainsKey(this->node_->getName()))
-			w->Value->Item1->children_->Remove(this->node_->getName());
+	for each (KeyValuePair<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^w in this->parents_) {
+		this->win->canvas_->Children->Remove(w->Value->Item2);
+		if (w->Value->Item1->children_->ContainsKey(this->node_))
+			w->Value->Item1->children_->Remove(this->node_);
 	}
 
 	lineRemoved = false;
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^w in this->children_) {
-		if (!lineRemoved) {
+	for each (KeyValuePair<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^w in this->children_) {
 			this->win->canvas_->Children->Remove(w->Value->Item2);
-			lineRemoved = true;
-		}
-		if (w->Value->Item1->parents_->ContainsKey(this->node_->getName()))
-			w->Value->Item1->parents_->Remove(this->node_->getName());
+			if (w->Value->Item1->parents_->ContainsKey(this->node_))
+				w->Value->Item1->parents_->Remove(this->node_);
 	}
 	win->treeController_->RemoveNode(this->node_);
 	this->win->canvas_->Children->Remove(this->rootWidget_);
@@ -222,7 +225,7 @@ generic<typename T>
 void	NodeWidget<T>::LinkChild(NodeWidget<T > ^parent) {
 	NodeWidget<T>	^%sel = (NodeWidget<T> ^)win->selected_;
 
-	if (!parents_->ContainsKey(this->node_->getName()) && !parent->children_->ContainsKey(node_->getName())) {
+	if (!parents_->ContainsKey(this->node_) && !parent->children_->ContainsKey(node_)) {
 		Line ^l = gcnew Line();
 
 		l->Visibility = System::Windows::Visibility::Visible;
@@ -235,8 +238,8 @@ void	NodeWidget<T>::LinkChild(NodeWidget<T > ^parent) {
 		l->X2 = childOffset.X + this->posX_;
 		l->Y2 = childOffset.Y + this->posY_;
 
-		this->parents_[parent->node_->getName()] =  gcnew Tuple<NodeWidget<T> ^, Line ^>(parent, l); // For access on both side to the line
-		parent->children_[node_->getName()] =  gcnew Tuple<NodeWidget<T> ^, Line ^>(this, l);
+		this->parents_[parent->node_] =  gcnew Tuple<NodeWidget<T> ^, Line ^>(parent, l); // For access on both side to the line
+		parent->children_[node_] =  gcnew Tuple<NodeWidget<T> ^, Line ^>(this, l);
 
 		win->canvas_->Children->Add(l);
 	}
@@ -249,7 +252,7 @@ void NodeWidget<T>::NodeClic(System::Object ^sender, System::Windows::Input::Mou
 
 	if (sel) {
 		if (win->mode_ == BrainView::Mode::LINK_NODE) {
-			if (!parents_->ContainsKey(this->node_->getName()) && !sel->children_->ContainsKey(node_->getName())) {
+			if (!parents_->ContainsKey(this->node_) && !sel->children_->ContainsKey(node_)) {
 				LinkChild(sel);
 
 				this->win->treeController_->addChild(sel->node_, this->node_); // physically add child
@@ -259,27 +262,46 @@ void NodeWidget<T>::NodeClic(System::Object ^sender, System::Windows::Input::Mou
 			Line ^line = nullptr;
 
 
-			if (sel->children_->ContainsKey(node_->getName())) { // from parent to child
-				win->canvas_->Children->Remove(sel->children_[node_->getName()]->Item2);
-				sel->node_->RemoveChild(node_->getName());
-				sel->children_->Remove(node_->getName());
-				this->parents_->Remove(sel->node_->getName());
+			if (sel->children_->ContainsKey(node_)) { // from parent to child
+				win->canvas_->Children->Remove(sel->children_[node_]->Item2);
+				sel->node_->RemoveChild(node_);
+				sel->children_->Remove(node_);
+				this->parents_->Remove(sel->node_);
 			}
 
-			if (this->children_->ContainsKey(sel->node_->getName())) {
-				win->canvas_->Children->Remove(this->children_[sel->node_->getName()]->Item2);
-				this->node_->RemoveChild(sel->node_->getName());
-				sel->parents_->Remove(node_->getName());
-				this->children_->Remove(sel->node_->getName());
+			if (this->children_->ContainsKey(sel->node_)) {
+				win->canvas_->Children->Remove(this->children_[sel->node_]->Item2);
+				this->node_->RemoveChild(sel->node_);
+				sel->parents_->Remove(node_);
+				this->children_->Remove(sel->node_);
 			}
 		}
 		win->mode_ = BrainView::Mode::NONE;
 		win->selected_ = nullptr;
 	}
 }
+generic<typename T>
+void NodeWidget<T>::CheckRootNode(System::Object ^sender, System::Windows::RoutedEventArgs ^e) {
+	ANode ^root = this->win->treeController_->tree_->getRootNode();
+
+	if (!root) {
+		this->win->treeController_->tree_->setRootNode(this->node_);
+	}
+	else {
+		node_->console_->Text += String::Format("You must unset root node on node \"{0}\"\n", root->getName());
+		boxRootNode_->Unchecked -= gcnew System::Windows::RoutedEventHandler(this, &NodeWidget<T>::UncheckRootNode);
+		boxRootNode_->IsChecked = false;
+		boxRootNode_->Unchecked += gcnew System::Windows::RoutedEventHandler(this, &NodeWidget<T>::UncheckRootNode);
+	}
+}
 
 generic<typename T>
-UInt32	NodeWidget<T>::posX_::get() {
+void NodeWidget<T>::UncheckRootNode(System::Object ^sender, System::Windows::RoutedEventArgs ^e) {
+	this->win->treeController_->tree_->setRootNode(nullptr);
+}
+
+generic<typename T>
+	UInt32	NodeWidget<T>::posX_::get() {
 	return x_;
 }
 
@@ -288,10 +310,10 @@ void	NodeWidget<T>::posX_::set(UInt32 i) {
 	NodeWidget<T>	^%sel = (NodeWidget<T> ^)win->selected_;
 	x_ = i;
 	Point childOffset = this->CalcLeftAttach();
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in parents_)
+	for each (KeyValuePair<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in parents_)
 		k->Value->Item2->X2 = i + childOffset.X;
 	Point parent = sel->CalcRightAttach();
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in children_)
+	for each (KeyValuePair<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in children_)
 		k->Value->Item2->X1 = i + + parent.X;
 }
 
@@ -305,10 +327,10 @@ void	NodeWidget<T>::posY_::set(UInt32 i) {
 	NodeWidget<T>	^%sel = (NodeWidget<T> ^)win->selected_;
 	y_ = i;
 	Point childOffset = this->CalcLeftAttach();
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in parents_)
+	for each (KeyValuePair<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in parents_)
 		k->Value->Item2->Y2 = i + childOffset.Y;
 	Point parent = sel->CalcRightAttach();
-	for each (KeyValuePair<String ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in children_)
+	for each (KeyValuePair<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^> ^k in children_)
 		k->Value->Item2->Y1 = i + + parent.Y;
 }
 

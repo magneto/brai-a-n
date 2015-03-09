@@ -18,8 +18,8 @@ ref class BrainView;
 generic<typename T> where T : ANode
 ref class NodeWidget : NodeWidgetWrap<T> {
 public:
-	Dictionary<String ^, Tuple<NodeWidget<T> ^, Line ^> ^>	^parents_;
-	Dictionary<String ^, Tuple<NodeWidget<T> ^, Line ^> ^>	^children_;
+	Dictionary<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^>	^parents_;
+	Dictionary<ANode ^, Tuple<NodeWidget<T> ^, Line ^> ^>	^children_;
 
 	UInt32			x_;
 	UInt32			y_;
@@ -45,7 +45,7 @@ public:
 	Button		^bAdd_;
 	Button		^bBuild_;
 	Button		^bMove_;
-	//TextBox		^tBox_;
+	CheckBox	^boxRootNode_;
 	ContextMenu	^menuNode_;
 	Rectangle	^recNode_;
 
@@ -66,4 +66,7 @@ public:
 	void AddLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 	void DeleteLink(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
 	void OnMouseClickButtonRemove(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
+	void CheckRootNode(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
+	void UncheckRootNode(System::Object ^sender, System::Windows::RoutedEventArgs ^e);
+
 };

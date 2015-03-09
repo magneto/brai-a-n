@@ -22,26 +22,33 @@ String	^CodeNode::generateTemplateCode(LanguageSel lang) {
 	builder->Append(String::Format("public void {0}(Dictionary<String, ANode> children, Object o)\n", name_ + "Func"));
 	builder->Append("{\n");
 	builder->Append("// Code Goes here, see documentation to know how it works\n");
+	builder->Append("// ex: children[\"nameChild\"].Call(42);\n");
 	builder->Append("}\n");
 	builder->Append("};\n");
 	return builder->ToString();
 }
 
 CodeNode::CodeNode(String ^code, TextBlock^ console) :
-	ANode(),
+	ANode(console),
 	code_(code),
 	res_(nullptr),
-	language_(LanguageSel::CSHARP),
-	console_(console) {
+	language_(LanguageSel::CSHARP) {
 }
 
 CodeNode::CodeNode(TextBlock ^console) :
-	ANode(),
+	ANode(console),
 	code_(""),
 	res_(nullptr),
-	language_(LanguageSel::CSHARP),
-	console_(console) {
+	language_(LanguageSel::CSHARP) {
 	code_ = generateTemplateCode(LanguageSel::CSHARP);
+}
+
+CodeNode::CodeNode() :
+	ANode(nullptr),
+		code_(""),
+		res_(nullptr),
+		language_(LanguageSel::CSHARP) {
+		code_ = generateTemplateCode(LanguageSel::CSHARP);
 }
 
 void CodeNode::Build() {
@@ -90,12 +97,12 @@ void CodeNode::Build() {
 }
 
 generic<typename T>
-void CodeNode::Process(T value) {
+void CodeNode::Process(Dictionary<String ^, ANode ^> ^namedChildren, T value) {
 	if (rebuild_) {
 		this->Build();
 		rebuild_ = false;
 	}
 	if (res_) {
-		entryPoint_->Invoke(instance_, gcnew array < Object ^ > {children_, value});
+		entryPoint_->Invoke(instance_, gcnew array < Object ^ > {namedChildren, value});
 	}
 }

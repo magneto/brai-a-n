@@ -1,6 +1,7 @@
 /*
 ** Author: Sebastien Maire
 ** Contribs:
+** Description: Implementation of DecisionTree
 */
 
 #include "DecisionTree.hpp"

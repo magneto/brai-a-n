@@ -37,22 +37,30 @@ public:
 [SerializableAttribute]
 public ref class ANode abstract {
 protected:
-	Dictionary<String^, ANode^>	^children_;
+	Dictionary<ANode^, ANode^>	^children_;
 	UInt32	posX_;
 	UInt32	posY_;
 public:
 	int number;
 	String ^name_;
-	ANode();
+	[NonSerializedAttribute]
+	TextBlock^ console_;
+
+	ANode(TextBlock ^console);
+	void echoError(String ^err) {
+		Console::WriteLine(err);
+	}
 // Getters, setters
 	void			setPosition(UInt32 x, UInt32 y);
 	Tuple<UInt32, UInt32>			^getPosition();
-	String	^getName();
-	Dictionary<String ^, ANode ^>	^getChildren();
+	String							^getName();
+	Dictionary<ANode ^, ANode ^>	^getChildren();
 
 	bool AddChild(ANode ^node);
-	void RemoveChild(String ^name);
+	void RemoveChild(ANode ^node);
 	virtual void	Build() {}
 	generic<typename T>
-	virtual void Process(T val) abstract;
+		void	Call(T val);
+	generic<typename T>
+	virtual void Process(Dictionary<String ^, ANode ^> ^namedChildren, T val) abstract;
 };

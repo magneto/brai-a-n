@@ -7,7 +7,9 @@
 #include "FANNNode.hpp"
 
 FANNNode::FANNNode():
-outnb_(0), generated_(false)
+ANode(nullptr),
+outnb_(0),
+generated_(false)
 {}
 
 void FANNNode::build()

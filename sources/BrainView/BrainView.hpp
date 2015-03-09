@@ -54,6 +54,7 @@ public:
 	void	DrawCanvas();
 
 	NodeWidget<ANode ^>	^CreateCodeNodeWidget();
+	void	RunTree();
 };
 
 delegate NodeWidget<ANode ^>	^NodeWidgetCreateRout();

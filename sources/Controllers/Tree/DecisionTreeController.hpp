@@ -25,7 +25,7 @@ public:
 	DecisionTree ^tree_;
 
 public:
-	Dictionary<String^, ANode^>					^getChildren(ANode^ node);
+	Dictionary<ANode^, ANode^>					^getChildren(ANode^ node);
 	void										addChild(ANode^ node, ANode^ child);
 	List<ANode^>								^getNodesList();
 	Dictionary<String ^, NodeCreationRoutine ^>	^getNodesTypes();

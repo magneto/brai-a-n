@@ -9,7 +9,7 @@
 #include "Controllers\OnTheFly\CompilerAttr.hpp"
 //#include "fan/toussa²/blablabla.h"//ajouter les fichiers fann au projet
 
-public ref class FANNNode : public ANode{
+public ref class FANNNode : public ANode {
 
 private:
 	int		outnb_;

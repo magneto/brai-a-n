@@ -25,7 +25,7 @@ namespace OnTheFly {
 
 	public:
 		static CompilerAttr() {
-			array<String ^> ^languages = gcnew array <String ^> {
+			array<String ^> ^languages = gcnew array < String ^ > {
 				"CSharp",
 				"JScript",
 				"VisualBasic"
@@ -37,12 +37,16 @@ namespace OnTheFly {
 
 			// Add references to nodes
 			compilerParams->ReferencedAssemblies->Add("System.dll");
+			compilerParams->ReferencedAssemblies->Add("C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\PresentationCore.dll");
+			compilerParams->ReferencedAssemblies->Add("C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\System.Xaml.dll");
+			compilerParams->ReferencedAssemblies->Add("C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\WindowsBase.dll");
+			compilerParams->ReferencedAssemblies->Add("C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\PresentationFramework.dll");
 			compilerParams->ReferencedAssemblies->Add((gcnew System::Uri(Assembly::GetExecutingAssembly()->CodeBase))->AbsolutePath);
 
 			provider = gcnew array < CodeDomProvider ^ > {
 				CodeDomProvider::CreateProvider(languages[0], providerOptions),
-				CodeDomProvider::CreateProvider(languages[1]),
-				CodeDomProvider::CreateProvider(languages[2], providerOptions)
+					CodeDomProvider::CreateProvider(languages[1]),
+					CodeDomProvider::CreateProvider(languages[2], providerOptions)
 			};
 		}
 		static array<CodeDomProvider ^>		^provider;

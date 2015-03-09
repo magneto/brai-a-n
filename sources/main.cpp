@@ -15,14 +15,21 @@ using namespace System::Windows;
 ref class Appli : Application
 {
 public:
+	static BrainView^ win = gcnew BrainView();
+
 	Appli(void){}
+	static void	ThreadRout() {
+		Console::WriteLine("toto");
+		win->RunTree();
+	}
 protected:
 	virtual void OnStartup(StartupEventArgs^ e) override
 	{
 		Application::OnStartup(e);
-		BrainView^ win = gcnew BrainView();
+
+		System::Threading::Thread ^t = gcnew System::Threading::Thread(gcnew System::Threading::ThreadStart(ThreadRout));
+		t->Start();
 		win->Show();
-		// System::Threading::Thread ^t = gcnew System::Threading::Thread(BrainView::RunTree);
 	}
 };
 

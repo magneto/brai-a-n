@@ -15,11 +15,10 @@ protected:
 public:
 	String ^code_;
 	CompilerResults ^res_;
-	Object ^instance_;
+	[NonSerializedAttribute]
+	Object ^instance_; // the user doesn't set his classes as serializable => regenerate instance at each load
 	MethodInfo ^entryPoint_;
 	bool	rebuild_;
-	[NonSerializedAttribute]
-	TextBlock^ console_;
 public:
 	enum class LanguageSel {
 		CSHARP = 0,
@@ -37,8 +36,9 @@ public:
 	}
 	CodeNode(String ^code, TextBlock^ console);
 	CodeNode(TextBlock ^console);
+	CodeNode();
 	String	^generateTemplateCode(LanguageSel lang);
 	virtual void Build() override;
 	generic<typename T>
-	void Process(T value) override;
+	virtual void Process(Dictionary<String ^, ANode ^> ^namedChildren, T value) override;
 };

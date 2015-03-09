@@ -17,9 +17,9 @@ void	DecisionTreeController::CheckTree() {
 		throw gcnew Exception("You must load a tree before you can do that.");
 }
 
-Dictionary<String^, ANode^> ^DecisionTreeController::getChildren(ANode^ Node) {
+Dictionary<ANode ^, ANode^> ^DecisionTreeController::getChildren(ANode^ node) {
 	CheckTree();
-	return Node->getChildren();
+	return node->getChildren();
 }
 
 void DecisionTreeController::addChild(ANode^ node, ANode ^child) {
@@ -64,11 +64,14 @@ void DecisionTreeController::Load(String ^path) {
 	}
 	tree_ = nullptr;
 	tree_ = ser->Unserialize(path);
+	for each (ANode ^n in tree_->allNodes_) {
+		n->Build();
+	}
 }
 
 void	DecisionTreeController::RemoveNode(ANode ^node) {
 	for each (ANode ^n in tree_->allNodes_) {
-		n->getChildren()->Remove(node->getName());
+		n->getChildren()->Remove(node);
 	}
 	tree_->allNodes_->Remove(node);
 }
