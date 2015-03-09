@@ -9,7 +9,8 @@
 #include "Models\Tree\Nodes\FANNNode.hpp"
 
 DecisionTreeController::DecisionTreeController() :
-tree_(gcnew DecisionTree())
+tree_(gcnew DecisionTree()),
+treeMutex_(gcnew System::Threading::Mutex())
 {}
 
 void	DecisionTreeController::CheckTree() {
@@ -25,7 +26,6 @@ Dictionary<ANode ^, ANode^> ^DecisionTreeController::getChildren(ANode^ node) {
 void DecisionTreeController::addChild(ANode^ node, ANode ^child) {
 	CheckTree();
 	node->AddChild(child);
-	//tree_->RegisterNode(node); // cause two time presence
 }
 
 List<ANode^> ^DecisionTreeController::getNodesList() {
@@ -52,12 +52,16 @@ void DecisionTreeController::setNodePos(ANode^ node, UInt32 x, UInt32 y) {
 }
 
 void DecisionTreeController::Save(String ^path) {
+	treeMutex_->WaitOne();
 	Serializer	^ser = gcnew Serializer();
 
 	ser->Serialize(path, tree_);
+	treeMutex_->ReleaseMutex();
 }
 
 void DecisionTreeController::Load(String ^path) {
+	treeMutex_->WaitOne();
+	Console::WriteLine("Loada");
 	Serializer	^ser = gcnew Serializer();
 	if (tree_) {
 		//throw gcnew Exception("Do you want to save before load another brain ?");
@@ -67,6 +71,19 @@ void DecisionTreeController::Load(String ^path) {
 	for each (ANode ^n in tree_->allNodes_) {
 		n->Build();
 	}
+	treeMutex_->ReleaseMutex();
+}
+
+generic<typename T>
+void	DecisionTreeController::Run(T value) {
+	while (1) {
+			treeMutex_->WaitOne();
+		if (tree_)
+		if (tree_->getRootNode())
+			tree_->getRootNode()->Call(42);
+		treeMutex_->ReleaseMutex();
+	}
+	
 }
 
 void	DecisionTreeController::RemoveNode(ANode ^node) {

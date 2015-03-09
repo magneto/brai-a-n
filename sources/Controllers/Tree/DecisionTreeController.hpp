@@ -23,6 +23,8 @@ public:
 	
 public:
 	DecisionTree ^tree_;
+	System::Threading::Mutex	^treeMutex_; // to avoid running and loading at the same time
+	// property Tree
 
 public:
 	Dictionary<ANode^, ANode^>					^getChildren(ANode^ node);
@@ -30,6 +32,8 @@ public:
 	List<ANode^>								^getNodesList();
 	Dictionary<String ^, NodeCreationRoutine ^>	^getNodesTypes();
 	void										setNodePos(ANode^ node, UInt32 x, UInt32 y);
+	generic<typename T>
+	void	Run(T value);
 	void	Save(String ^path);
 	void	Load(String ^path);
 

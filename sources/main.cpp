@@ -19,7 +19,7 @@ public:
 
 	Appli(void){}
 	static void	ThreadRout() {
-		Console::WriteLine("toto");
+		Console::WriteLine("[THREAD] Loop to start running the tree succesfully loaded.");
 		win->RunTree();
 	}
 protected:

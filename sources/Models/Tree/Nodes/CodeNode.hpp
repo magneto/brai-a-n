@@ -14,9 +14,11 @@ public ref class CodeNode : public ANode {
 protected:
 public:
 	String ^code_;
+	[NonSerializedAttribute]
 	CompilerResults ^res_;
 	[NonSerializedAttribute]
 	Object ^instance_; // the user doesn't set his classes as serializable => regenerate instance at each load
+	[NonSerializedAttribute]
 	MethodInfo ^entryPoint_;
 	bool	rebuild_;
 public:

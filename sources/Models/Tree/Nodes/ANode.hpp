@@ -40,6 +40,7 @@ protected:
 	Dictionary<ANode^, ANode^>	^children_;
 	UInt32	posX_;
 	UInt32	posY_;
+	
 public:
 	int number;
 	String ^name_;

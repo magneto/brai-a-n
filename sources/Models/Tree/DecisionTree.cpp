@@ -9,7 +9,6 @@
 
 DecisionTree::DecisionTree() :
 rootNode_(nullptr),
-standaloneNodes_(gcnew List<ANode ^>(42)),
 allNodes_(gcnew List<ANode ^>(42)) {
 }
 

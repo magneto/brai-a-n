@@ -25,11 +25,7 @@ void	BrainView::createNodesMenu_() {
 }
 
 void	BrainView::RunTree() {
-	while (1) {
-		if (treeController_->tree_)
-		if (treeController_->tree_->getRootNode())
-			treeController_->tree_->getRootNode()->Call(42);
-	}
+	treeController_->Run(42);
 }
 
 

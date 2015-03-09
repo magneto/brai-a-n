@@ -13,11 +13,9 @@
 public ref class DecisionTree {
 public:
 	ANode			^rootNode_;
-	List<ANode ^>	^standaloneNodes_;
 	List<ANode ^>	^allNodes_;
 public:
 	DecisionTree();
-
 
 	ANode			^getRootNode();
 	void			setRootNode(ANode ^node);
