@@ -1,6 +1,7 @@
 #pragma once
 
 # include <utility>
+# include <string>
 # include <boost/shared_array.hpp>
 # include "MsgFactory.hpp"
 # include "TerrariaInfo.hpp"
@@ -29,6 +30,7 @@ public:
 	void	notify(MessagePtr msg);
 	MsgQueue&	getResponseQueue();
 	MsgFactory&	getMsgFactory();
+	void		chat(const std::string& text);
 
 private:
 	boost::asio::io_service	io_service;

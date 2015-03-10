@@ -8,7 +8,7 @@ int	main(void)
 {
 	try
 	{
-	  Client	cl("192.168.1.32");
+		Client	cl;
 
 		cl.run();
 	}

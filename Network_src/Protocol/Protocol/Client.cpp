@@ -45,6 +45,21 @@ MsgFactory&	Client::getMsgFactory()
 	return msgFactory;
 }
 
+void	Client::chat(const std::string& text)
+{
+	if (!player.isPlaying())
+		return;
+	MessagePtr	msg = msgFactory.makeRequest(MsgType::CHAT);
+	Chat*		c = static_cast<Chat*>(msg.get());
+
+	c->playerSlot = player.getSlot();
+	RGB::setColor(c->textColor, RGB::BLUE);
+	std::memset(c->text, 0, sizeof(c->text));
+	std::size_t	len = min(text.length(), sizeof(c->text) - 1);
+	std::memcpy(c->text, text.c_str(), len);
+	connection.request(msg, offsetof(Chat, text) + len);
+}
+
 /*****************************************************************************
 **	PRIVATE
 *****************************************************************************/
@@ -80,7 +95,32 @@ void	Client::spawn(const Spawn& sp)
 
 	connection.request(msg, sizeof(*s));
 	player.setPlaying(true);
-	std::cout << "Spawn request..." << std::endl;
+	std::cout << "\tSUCCESS" << std::endl;
+
+	std::cout << "Joining red team...";
+	std::flush(std::cout);
+	msg = msgFactory.makeRequest(MsgType::PARTY_CHANGE);
+	ChangeParty*	c = static_cast<ChangeParty *>(msg.get());
+
+	c->playerSlot = player.getSlot();
+	c->team = 1; // RED
+	connection.request(msg, sizeof(*c));
+	std::cout << "\tSUCCESS" << std::endl;
+
+	/*
+	std::cout << "Requesting teleport...";
+	std::flush(std::cout);
+	msg = msgFactory.makeRequest(MsgType::TELEPORT);
+	Teleport*	t = static_cast<Teleport *>(msg.get());
+	
+	t->playerSlot = player.getSlot();
+	t->destX = sp.spawnX - 1500;
+	t->destY = sp.spawnY;
+	t->flags |= 1 << 0;
+	t->flags |= 1 << 2;
+	connection.request(msg, sizeof(*t));
+	std::cout << "\tSUCCESS" << std::endl;
+	*/
 }
 
 /*

@@ -27,8 +27,6 @@ void	Connection::syncRequest(Message *msg, std::size_t msgSize)
 	socket.send(boost::asio::buffer(msg, msgSize));
 }
 
-//#include <boost/array.hpp>
-
 /*
 **	Reads response (synchronous)
 **	while response is empty, retry receive
@@ -71,17 +69,19 @@ void	Connection::sendHandler(MessagePtr msg, const boost::system::error_code& er
 	asyncTaskCheck(err, TaskType::REQUEST, static_cast<MsgType>(msg->type));
 }
 
-#include <fstream>
+//#include <fstream>
 
 //static std::ofstream	ofs_send("send.txt", std::ofstream::out);
-static std::ofstream	ofs_recv("recv.txt", std::ofstream::out);
+//static std::ofstream	ofs_recv("recv.txt", std::ofstream::out);
 
 void		Connection::response(MessagePtr header, const boost::system::error_code& err)
 {
 	asyncTaskCheck(err, TaskType::RESPONSE);
 
+	/*
 	ofs_recv.write(reinterpret_cast<char *>(header.get()), sizeof(*header));
 	std::flush(ofs_recv);
+	*/
 
 	if (!isInvalidResponse(*header))
 	{
@@ -104,18 +104,23 @@ void	Connection::recvHandler(MessagePtr header, uint8 *buf, const boost::system:
 	asyncTaskCheck(err, TaskType::RESPONSE);
 	disconnectCheck(*header);
 
+	/*
 	ofs_recv.write(reinterpret_cast<char *>(buf), header->length - 1);
 	std::flush(ofs_recv);
+	*/
 
 	if (!isIgnoredResponse(*header))
 	{
 		MessagePtr		msg = client.getMsgFactory().makeResponse(*header);
-		uint8*			msgData = reinterpret_cast<uint8*>(msg.get());
+		if (msg != nullptr) // unimplemented response
+		{
+			uint8*			msgData = reinterpret_cast<uint8*>(msg.get());
 
-		std::memcpy(msgData, header.get(), sizeof(*header));
-		std::memcpy(msgData + sizeof(*header), buf, header->length - 1);
+			std::memcpy(msgData, header.get(), sizeof(*header));
+			std::memcpy(msgData + sizeof(*header), buf, header->length - 1);
 
-		client.notify(msg);
+			client.notify(msg);
+		}
 	}
 
 	delete[] buf;
@@ -192,7 +197,8 @@ inline void Connection::asyncTaskCheck(const boost::system::error_code& err, Tas
 const std::vector<MsgType>	Connection::ignoredResponses =
 {
 	MsgType::STATUSBAR,
-	MsgType::RECALCULATE
+	MsgType::RECALCULATE,
+	MsgType::BALANCE_STATS
 }; 
 
 inline bool	Connection::isIgnoredResponse(const Message& header) const

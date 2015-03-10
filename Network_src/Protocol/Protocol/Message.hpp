@@ -111,6 +111,21 @@ struct SpawnPlayer : public Message
 	int32	spawnX;
 	int32	spawnY;
 };
+
+struct ChangeParty : public Message
+{
+	uint8	playerSlot;
+	uint8	team;
+};
+
+struct Teleport : public Message
+{
+	uint8	flags;
+	int16	playerSlot;
+	single	destX;
+	single	destY;
+};
+
 /*****************************************************************************
 **	RESPONSES (client<-server)
 *****************************************************************************/
@@ -153,6 +168,7 @@ struct NPCUpdate : public Message
 	int32	life;
 	single	ai[4];
 	int16	npcId;
+	uint8	rowData[42];
 };
 
 struct NPCName : public Message
@@ -205,6 +221,8 @@ struct TileRowData : public Message
 
 	TileInfo	tileData;
 	int16		RLEAmount;
+	
+	uint8		rowData[1024];
 };
 
 /*****************************************************************************
@@ -230,6 +248,24 @@ struct ItemOwnerSet : public Message
 	uint8	ownerPlayerSlot;
 };
 
+struct PlayerControl : public Message
+{
+	uint8	playerSlot;
+	uint8	ctrlFlags;
+	uint8	selectedItemSlot;
+	single	posX;
+	single	posY;
+	single	velX;
+	single	velY;
+	uint8	flags;
+};
+
+struct Chat : public Message
+{
+	uint8	playerSlot;
+	color	textColor;
+	char	text[TERR_MAX_STR];
+};
 /***************************************************
 IGNORED
 ***************************************************/
