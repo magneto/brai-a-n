@@ -14,6 +14,7 @@ public ref class CodeNode : public ANode {
 protected:
 public:
 	String ^code_;
+
 	[NonSerializedAttribute]
 	CompilerResults ^res_;
 	[NonSerializedAttribute]

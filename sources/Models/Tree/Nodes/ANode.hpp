@@ -45,10 +45,13 @@ public:
 	int number;
 	String ^name_;
 	[NonSerializedAttribute]
+	System::Threading::Mutex	^coreMutex_;
+	[NonSerializedAttribute]
 	TextBlock^ console_;
 
 	ANode(TextBlock ^console);
 	void echoError(String ^err) {
+		// console_->Text += err; // causes TargetInvocationException
 		Console::WriteLine(err);
 	}
 // Getters, setters

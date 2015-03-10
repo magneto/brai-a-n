@@ -203,8 +203,10 @@ void	BrainView::DrawCanvas() {
 	array<NodeWidget<ANode ^> ^>	^widgetsCreate = gcnew array<NodeWidget<ANode ^> ^>(5);
 
 	// Create widgets
+	treeController_->tree_->setRootNode(nullptr);
 	for each (ANode ^w in treeController_->getNodesList()) {
 		Tuple<UInt32, UInt32>	^pos = w->getPosition();
+		w->console_ = this->consoleDebug_;
 		widgets.Add(w, gcnew CodeNodeWidget(this, pos->Item1, pos->Item2, w->getName(), (CodeNode ^)w));
 	}
 	/* We need to have all widgets before drawing the links */

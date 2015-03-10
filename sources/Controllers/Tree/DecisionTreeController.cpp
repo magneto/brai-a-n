@@ -61,7 +61,6 @@ void DecisionTreeController::Save(String ^path) {
 
 void DecisionTreeController::Load(String ^path) {
 	treeMutex_->WaitOne();
-	Console::WriteLine("Loada");
 	Serializer	^ser = gcnew Serializer();
 	if (tree_) {
 		//throw gcnew Exception("Do you want to save before load another brain ?");
@@ -69,6 +68,7 @@ void DecisionTreeController::Load(String ^path) {
 	tree_ = nullptr;
 	tree_ = ser->Unserialize(path);
 	for each (ANode ^n in tree_->allNodes_) {
+		n->coreMutex_ = gcnew System::Threading::Mutex();
 		n->Build();
 	}
 	treeMutex_->ReleaseMutex();

@@ -52,6 +52,7 @@ CodeNode::CodeNode() :
 }
 
 void CodeNode::Build() {
+	coreMutex_->WaitOne();
 	CompilerResults ^newRes = nullptr;
 
 	newRes = CompilerAttr::provider[(int)language_]->CompileAssemblyFromSource(CompilerAttr::compilerParams, code_);
@@ -94,10 +95,12 @@ void CodeNode::Build() {
 	}
 	instance_ = newRes->CompiledAssembly->CreateInstance(entryClass->FullName);
 	res_ = newRes;
+	coreMutex_->ReleaseMutex();
 }
 
 generic<typename T>
 void CodeNode::Process(Dictionary<String ^, ANode ^> ^namedChildren, T value) {
+	coreMutex_->WaitOne();
 	if (rebuild_) {
 		this->Build();
 		rebuild_ = false;
@@ -105,4 +108,5 @@ void CodeNode::Process(Dictionary<String ^, ANode ^> ^namedChildren, T value) {
 	if (res_) {
 		entryPoint_->Invoke(instance_, gcnew array < Object ^ > {namedChildren, value});
 	}
+	coreMutex_->ReleaseMutex();
 }

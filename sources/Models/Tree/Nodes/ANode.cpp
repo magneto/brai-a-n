@@ -7,6 +7,7 @@
 
 ANode::ANode(TextBlock ^console) :
 	console_(console),
+	coreMutex_(gcnew System::Threading::Mutex()),
 	children_(gcnew Dictionary<ANode ^, ANode ^>()),
 	posX_(0),
 	posY_(0),
