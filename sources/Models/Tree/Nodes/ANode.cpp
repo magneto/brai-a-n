@@ -49,5 +49,10 @@ void ANode::Call(T val) {
 	{
 		namedC->Add(c->Key->getName(), c->Value);
 	}
-	this->Process(namedC, val);
+	try {
+		this->Process(namedC, val);
+	}
+	catch (Exception ^e) {
+		Console::WriteLine(e->Message);
+	}
 }
